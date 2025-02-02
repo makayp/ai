@@ -1,14 +1,16 @@
 'use client';
 
-import { useScrollToBottom } from '@/hooks/use-scroll-to-bottom';
-import { messages } from '@/lib/dummy-chat';
-import { useChat } from 'ai/react';
-import { useRef } from 'react';
+import { Message, useChat } from 'ai/react';
 import ChatInput from './chat-input';
+import Messages from './messages';
+import { generateRandomUUID } from '@/lib/utils';
 
-const initialMessages = messages;
+type ChatProps = {
+  id: string;
+  initialMessages: Message[];
+};
 
-export default function Chat() {
+export default function Chat({ id, initialMessages }: ChatProps) {
   const {
     id: chatId,
     messages,
@@ -19,42 +21,14 @@ export default function Chat() {
     isLoading,
     stop,
   } = useChat({
+    id,
     initialMessages,
+    generateId: generateRandomUUID,
   });
 
-  const [messagesContainerRef, messagesEndRef] =
-    useScrollToBottom<HTMLDivElement>();
-
-  console.log(messages);
-
   return (
-    <div className='flex flex-col h-full w-fullh max-w-4xl mx-auto px-4'>
-      <div className='overflow-auto w-full flex-1'>
-        <div className='space-y-8'>
-          {messages.map((message) => (
-            <div key={message.id}>
-              {message.role === 'user' && (
-                <div className='max-w-[70%] ml-auto bg-gray-100 p-4 rounded-xl w-fit my-5'>
-                  <p>{message.content}</p>
-                </div>
-              )}
-
-              {message.role === 'assistant' && (
-                <div className='flex gap-2'>
-                  <span className='flex items-center justify-center size-5 rounded-full border p-4 text-xl'>
-                    🤖
-                  </span>
-                  <p>{message.content}</p>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-        <div
-          ref={messagesEndRef}
-          className='shrink-0 min-w-[24px] min-h-[24px]'
-        />
-      </div>
+    <div className='flex flex-col h-full w-full'>
+      <Messages messages={messages} isLoading={isLoading} />
 
       <ChatInput
         append={append}

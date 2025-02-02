@@ -1,14 +1,16 @@
 'use client';
 
+import { useIsMobile } from '@/hooks/use-mobile';
 import { ChatRequestOptions, CreateMessage, Message } from 'ai';
-import React, { useCallback, useEffect, useRef } from 'react';
-import { toast } from 'sonner';
 import { ArrowUpIcon, StopCircle } from 'lucide-react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
+import { twMerge } from 'tailwind-merge';
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { twMerge } from 'tailwind-merge';
 import SuggestedActions from './suggested-actions';
+
+import clsx from 'clsx';
 
 type ChatInputProps = {
   inputValue: string;
@@ -37,7 +39,6 @@ export default function ChatInput({
   stop,
   messages,
   append,
-  handleSubmit,
   chatId,
   className,
 }: ChatInputProps) {
@@ -45,12 +46,13 @@ export default function ChatInput({
   const formRef = useRef<HTMLFormElement>(null);
 
   const isMobile = useIsMobile();
+  const [textAreaFocus, setTextAreaFocus] = useState<boolean>(true);
 
   useEffect(() => {
     if (textareaRef.current) {
       adjustHeight();
     }
-  }, []);
+  }, [inputValue]);
 
   const adjustHeight = () => {
     if (textareaRef.current) {
@@ -63,42 +65,65 @@ export default function ChatInput({
 
   const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(event.target.value);
-    adjustHeight();
   };
 
   const submitForm = useCallback(() => {
-    formRef.current?.requestSubmit();
-    adjustHeight();
+    if (!inputValue) return;
+    append({
+      role: 'user',
+      content: inputValue,
+    });
+    setInput('');
 
     if (!isMobile) {
       textareaRef.current?.focus();
     }
-  }, [isMobile]);
+  }, [append, inputValue, isMobile, setInput]);
 
   return (
     <form
       ref={formRef}
-      className='flex flex-row gap-2 relative items-end w-full'
-      onSubmit={handleSubmit}
+      className={clsx(
+        'relative flex flex-col items-center gap-4 mx-auto w-[calc(100dvw-32px)] sm:w-[calc(100%-70px)] max-w-3xl',
+        {
+          'sm:pl-5': messages.length > 0,
+        }
+      )}
     >
-      <div className={'relative w-full flex flex-col gap-4'}>
-        {messages.length === 0 && (
-          <SuggestedActions append={append} chatId={chatId} />
+      {messages.length === 0 && (
+        <SuggestedActions append={append} chatId={chatId} />
+      )}
+      <div
+        className={clsx(
+          'relative px-3 w-full rounded-2xl bg-gray-100 pt-2 pb-12 cursor-text',
+          {
+            'ring-2 ring-ring ring-offset-2': textAreaFocus,
+          }
         )}
-
+        onClick={() => {
+          textareaRef.current?.focus();
+        }}
+      >
         <Textarea
           ref={textareaRef}
           placeholder='Send a message...'
           value={inputValue}
           onChange={handleInputChange}
           className={twMerge(
-            'min-h-[24px] max-h-[calc(60dvh)] overflow-auto resize-none rounded-xl text-base bg-muted border-none',
+            'min-h-[24px] max-h-[calc(40dvh)] overflow-auto resize-none text-base border-none bg-transparent p-0 focus-visible:ring-0 focus-visible:ring-offset-0',
             className
           )}
-          rows={3}
+          rows={2}
           autoFocus
+          onFocus={() => {
+            setTextAreaFocus(true);
+          }}
+          onBlur={() => {
+            setTextAreaFocus(false);
+          }}
           onKeyDown={(event) => {
             if (event.key === 'Enter' && !event.shiftKey) {
+              if (isMobile) return;
               event.preventDefault();
 
               if (isLoading) {
@@ -114,9 +139,11 @@ export default function ChatInput({
 
         {isLoading ? (
           <Button
-            className='rounded-full p-1.5 h-fit absolute bottom-2 right-2 m-0.5 text-white'
+            type='button'
+            className='rounded-full p-2 h-fit absolute bottom-2 right-2 m-0.5 text-white'
             onClick={(event) => {
               event.preventDefault();
+              event.stopPropagation();
               stop();
             }}
           >
@@ -124,28 +151,17 @@ export default function ChatInput({
           </Button>
         ) : (
           <Button
-            className='rounded-full p-1.5 h-fit absolute bottom-2 right-2 m-0.5 text-white'
+            className='rounded-full p-2 h-fit absolute bottom-2 right-2 m-0.5 text-white disabled:pointer-events-auto'
             onClick={(event) => {
+              event.stopPropagation();
               event.preventDefault();
               submitForm();
             }}
-            disabled={inputValue.length === 0}
+            disabled={inputValue.trim().length === 0}
           >
             <ArrowUpIcon size={14} />
           </Button>
         )}
-
-        {/* <Button
-        className='rounded-full p-1.5 h-fit absolute bottom-2 right-10 m-0.5 dark:border-zinc-700'
-        onClick={(event) => {
-          event.preventDefault();
-          fileInputRef.current?.click();
-        }}
-        variant='outline'
-        disabled={isLoading}
-      >
-        <PaperclipIcon size={14} />
-      </Button> */}
       </div>
     </form>
   );

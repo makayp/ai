@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useOptimistic, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -35,8 +35,11 @@ export function ModelSelector({
           className
         )}
       >
-        <Button variant='outline' className='px-2 md:px-4 md:h-[34px]'>
-          {selectedModel?.label}
+        <Button
+          variant='outline'
+          className='md:px-4 md:h-[34px] flex items-center text-pretty text-[17px] sm:text-lg md:text-[19px] font-semibold text-stone-600'
+        >
+          AIPro {selectedModel?.label}
           <ChevronDownIcon />
         </Button>
       </DropdownMenuTrigger>

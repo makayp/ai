@@ -1,22 +1,28 @@
+'use client';
+
 import { Edit } from 'lucide-react';
 import { ModelSelector } from './model-selector';
+import { useRouter } from 'next/navigation';
 
 export default function Header() {
+  const router = useRouter();
+
   return (
-    <header className='flex items-center justify-center min-h-16 shadow-smb sticky top-0 left-0 right-0 bg-gray-50b z-10'>
-      <div className='absolute left-0 top-0 bottom-0 flex items-center justify-center ml-5'>
-        <button className='flex gap-2 items-center'>
-          <Edit className='size-5' />
-          <span className='hidden sm:inline-flex'>New chat</span>
-        </button>
-      </div>
-
-      <div className='inline-flex font-[var(--font-geist-sans)]'>
-        <h1 className='text-[20px] font-semibold tracking-wide'>AIPro</h1>
-      </div>
-
-      <div className='absolute right-0 top-0 bottom-0 flex items-center justify-center mr-5'>
+    <header className='flex items-center justify-between min-h-16 sticky top-0 left-0 right-0 z-10 pl-2 pr-5 md:px-10 h-[64px]'>
+      <div className='inline-flex items-centerh gap-2h'>
         <ModelSelector selectedModelId='gpt-4o-mini' />
+      </div>
+
+      <div className='flex items-center justify-center text-stone-700 text-[17px]'>
+        <button
+          className='flex gap-1 items-center'
+          onClick={() => {
+            router.push('/');
+          }}
+        >
+          <Edit className='size-5' />
+          <span className='sm:inline-flex'>New chat</span>
+        </button>
       </div>
     </header>
   );

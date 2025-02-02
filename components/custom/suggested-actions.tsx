@@ -3,7 +3,6 @@
 import { motion } from 'framer-motion';
 import { Button } from '../ui/button';
 import { ChatRequestOptions, CreateMessage, Message } from 'ai';
-import { memo } from 'react';
 
 interface SuggestedActionsProps {
   chatId: string;
@@ -13,12 +12,12 @@ interface SuggestedActionsProps {
   ) => Promise<string | null | undefined>;
 }
 
-function PureSuggestedActions({ chatId, append }: SuggestedActionsProps) {
+export default function SuggestedActions({ append }: SuggestedActionsProps) {
   const suggestedActions = [
     {
       title: 'Write code to',
-      label: `demonstrate djikstra's algorithm`,
-      action: `Write code to demonstrate djikstra's algorithm`,
+      label: `demonstrate binary search`,
+      action: `Write code to demonstrate binary search`,
     },
     {
       title: 'Help me write an essay',
@@ -27,13 +26,13 @@ function PureSuggestedActions({ chatId, append }: SuggestedActionsProps) {
     },
     {
       title: 'What is the weather',
-      label: 'in San Francisco?',
-      action: 'What is the weather in San Francisco?',
+      label: 'in Paris?',
+      action: 'What is the weather in Paris?',
     },
     {
-      title: 'What are the advantages',
-      label: 'of using Next.js?',
-      action: 'What are the advantages of using Next.js?',
+      title: 'Help me to draft out',
+      label: 'a gym plan',
+      action: 'Help me draft out a gym plan',
     },
   ];
 
@@ -51,8 +50,6 @@ function PureSuggestedActions({ chatId, append }: SuggestedActionsProps) {
           <Button
             variant='ghost'
             onClick={async () => {
-              window.history.replaceState({}, '', `/chat/${chatId}`);
-
               append({
                 role: 'user',
                 content: suggestedAction.action,
@@ -70,6 +67,3 @@ function PureSuggestedActions({ chatId, append }: SuggestedActionsProps) {
     </div>
   );
 }
-
-const SuggestedActions = memo(PureSuggestedActions, () => true);
-export default SuggestedActions;
