@@ -1,7 +1,9 @@
 import ReactMarkdown, { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import rehypeSanitize from 'rehype-sanitize';
 import CodeBlock from './code-block';
 import Link from 'next/link';
+import { memo } from 'react';
 
 const components: Partial<Components> = {
   table(props) {
@@ -13,10 +15,12 @@ const components: Partial<Components> = {
   },
   code(props) {
     const { children, className } = props;
+    const match = /language-(\w+)/.exec(className || '');
 
     return (
       <CodeBlock
-        language={className?.split('-')[1]}
+        isBlockCode={!!match}
+        language={match?.[1]}
         codeString={String(children).replace(/\n$/, '')}
       />
     );
@@ -46,10 +50,16 @@ const components: Partial<Components> = {
   },
 };
 
-export default function Markdown({ children }: { children: string }) {
+function Markdown({ children }: { children: string }) {
   return (
-    <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
+    <ReactMarkdown
+      remarkPlugins={[remarkGfm]}
+      rehypePlugins={[rehypeSanitize]}
+      components={components}
+    >
       {children}
     </ReactMarkdown>
   );
 }
+
+export default memo(Markdown);
