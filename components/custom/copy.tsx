@@ -11,7 +11,6 @@ export default function Copy({ text }: { text: string }) {
 
   async function copyToClipboard() {
     if (!navigator?.clipboard || isCopied) return;
-    console.log(text);
 
     try {
       await navigator.clipboard.writeText(text);
@@ -30,8 +29,8 @@ export default function Copy({ text }: { text: string }) {
         asChild
         variant='ghost'
         onClick={copyToClipboard}
-        className={clsx('h-fit p-1 text-stone-600 ', {
-          'hover:text-stone-500': !isCopied,
+        className={clsx('h-fit p-1 text-gray-600', {
+          'hover:text-gray-500': !isCopied,
         })}
       >
         {isCopied ? (

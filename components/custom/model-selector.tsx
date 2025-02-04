@@ -31,13 +31,13 @@ export function ModelSelector({
       <DropdownMenuTrigger
         asChild
         className={cn(
-          'w-fit data-[state=open]:bg-accent data-[state=open]:text-accent-foreground shadow-none border-0',
+          'w-fit data-[state=open]:bg-accent data-[state=open]:text-accent-foreground shadow-none border-0 text-gray-600',
           className
         )}
       >
         <Button
           variant='outline'
-          className='md:px-4 md:h-[34px] flex items-center text-pretty text-[17px] sm:text-lg md:text-[19px] font-semibold text-stone-600'
+          className='md:px-4 md:h-[34px] flex items-center text-pretty text-[17px] sm:text-lg md:text-[19px] font-semibold'
         >
           AIPro {selectedModel?.label}
           <ChevronDownIcon />

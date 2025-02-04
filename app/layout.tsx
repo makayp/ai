@@ -4,12 +4,12 @@ import './globals.css';
 import { Toaster } from 'sonner';
 
 const geistSans = Geist({
-  variable: '--font-geist-sans',
+  variable: '--font-sans',
   subsets: ['latin'],
 });
 
 export const metadata: Metadata = {
-  title: 'AI',
+  title: 'AIPro',
   description: '',
 };
 
@@ -20,7 +20,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='en'>
-      <body className={`${geistSans.variable} antialiased text-stone-800`}>
+      <body
+        className={`${geistSans.variable} antialiased text-gray-800 font-sans`}
+      >
         <>
           <Toaster position='top-center' />
           {children}

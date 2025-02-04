@@ -33,7 +33,7 @@ function CodeBlock({ language, codeString, isBlockCode }: CodeBoxProps) {
         </div>
       )}
       {!isBlockCode && (
-        <code className='bg-gray-200/70 text-stone-800 rounded-md py-0.5 px-1.5 text-sm w-fit not-prose'>
+        <code className='bg-gray-200/70 text-gray-800 rounded-md py-0.5 px-1.5 text-sm w-fit not-prose'>
           {codeString}
         </code>
       )}

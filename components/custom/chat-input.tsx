@@ -3,13 +3,11 @@
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ChatRequestOptions, CreateMessage, Message } from 'ai';
 import { ArrowUpIcon, StopCircle } from 'lucide-react';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { twMerge } from 'tailwind-merge';
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
-import SuggestedActions from './suggested-actions';
-
 import clsx from 'clsx';
 
 type ChatInputProps = {
@@ -32,14 +30,13 @@ type ChatInputProps = {
   className?: string;
 };
 
-export default function ChatInput({
+function ChatInput({
   inputValue,
   setInput,
   isLoading,
   stop,
   messages,
   append,
-  chatId,
   className,
 }: ChatInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -68,7 +65,7 @@ export default function ChatInput({
   };
 
   const submitForm = useCallback(() => {
-    if (!inputValue) return;
+    if (!inputValue.trim()) return;
     append({
       role: 'user',
       content: inputValue,
@@ -90,9 +87,9 @@ export default function ChatInput({
         }
       )}
     >
-      {messages.length === 0 && (
+      {/* {messages.length === 0 && (
         <SuggestedActions append={append} chatId={chatId} />
-      )}
+      )} */}
       <div
         className={clsx(
           'relative px-3 w-full rounded-2xl bg-gray-100 pt-2 pb-12 cursor-text',
@@ -110,10 +107,10 @@ export default function ChatInput({
           value={inputValue}
           onChange={handleInputChange}
           className={twMerge(
-            'min-h-[24px] max-h-[calc(40dvh)] overflow-auto resize-none text-base border-none bg-transparent p-0 focus-visible:ring-0 focus-visible:ring-offset-0',
+            'min-h-[45px] max-h-[calc(40dvh)] overflow-auto resize-none text-base border-none bg-transparent p-0 focus-visible:ring-0 focus-visible:ring-offset-0',
             className
           )}
-          rows={2}
+          rows={1}
           autoFocus
           onFocus={() => {
             setTextAreaFocus(true);
@@ -166,3 +163,5 @@ export default function ChatInput({
     </form>
   );
 }
+
+export default memo(ChatInput);

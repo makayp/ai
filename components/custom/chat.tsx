@@ -24,11 +24,17 @@ export default function Chat({ id, initialMessages }: ChatProps) {
     id,
     initialMessages,
     generateId: generateRandomUUID,
+    sendExtraMessageFields: true,
   });
 
   return (
     <div className='flex flex-col h-full w-full'>
-      <Messages messages={messages} isLoading={isLoading} />
+      <Messages
+        chatId={chatId}
+        append={append}
+        messages={messages}
+        isLoading={isLoading}
+      />
 
       <ChatInput
         append={append}
