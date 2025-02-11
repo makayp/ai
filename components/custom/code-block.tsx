@@ -13,8 +13,8 @@ function CodeBlock({ language, codeString, isBlockCode }: CodeBoxProps) {
   return (
     <>
       {isBlockCode && (
-        <div className='bg-gray-50 rounded-lg'>
-          <div className='flex justify-between  items-center h-[45px] bg-gray-100 py-3 px-4 rounded-t-xl text-sm font-semibold'>
+        <div className='bg-gray-50 rounded-lg border border-gray-200/80 mb-8'>
+          <div className='flex justify-between  items-center h-[40px] bg-gray-100 py-3 px-4 rounded-t-xl text-sm font-semibold'>
             <span>{language ? language : 'code'}</span>
             <Copy text={codeString} />
           </div>
@@ -22,7 +22,7 @@ function CodeBlock({ language, codeString, isBlockCode }: CodeBoxProps) {
           <div className='overflow-x-auto text-sm not-prose leading-6'>
             <SyntaxHighlighter
               PreTag={'div'}
-              className='!bg-transparent !px-5 !py-10'
+              className='!bg-transparent !px-5 !py-5'
               language={language}
               style={language ? atomOneLight : {}}
               // style={theme.colorBrewer}

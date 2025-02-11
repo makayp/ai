@@ -6,7 +6,9 @@ import {
 } from 'ai';
 import Message, { ThinkingMessage } from './message';
 import { memo } from 'react';
-import Overview from './overview';
+import { isLastMessage } from '@/lib/utils';
+import { useChat } from 'ai/react';
+import ChatError from './error';
 
 type MessagesProps = {
   chatId: string;
@@ -17,33 +19,41 @@ type MessagesProps = {
   messages: MessageType[];
   isLoading: boolean;
   className?: string;
+  reload: (
+    chatRequestOptions?: ChatRequestOptions
+  ) => Promise<string | null | undefined>;
 };
 
-function Messages({ chatId, append, messages, isLoading }: MessagesProps) {
+function Messages({ messages, isLoading, reload, chatId }: MessagesProps) {
   const [messagesContainerRef, messagesEndRef] =
     useScrollToBottom<HTMLDivElement>({
       scrollOnLoad: messages.length > 0,
     });
+
+  const { error } = useChat({ id: chatId });
 
   return (
     <div
       ref={messagesContainerRef}
       className='overflow-auto w-full flex-1 pt-6 pb-16'
     >
-      {messages.length === 0 && <Overview chatId={chatId} append={append} />}
-
-      <div className='space-y-8 w-[calc(100dvw-32px)] max-w-3xl sm:w-[calc(100dvw-70px)] mx-auto'>
+      <div className='w-[calc(100dvw-32px)] max-w-3xl sm:w-[calc(100dvw-70px)] mx-auto'>
         {messages.map((message) => (
-          <Message key={message.id} message={message} />
+          <Message
+            key={message.id}
+            message={message}
+            reload={reload}
+            isLoading={isLoading}
+            isLastMessage={isLastMessage({ messages, message })}
+          />
         ))}
         {isLoading && messages[messages.length - 1]?.role === 'user' && (
           <ThinkingMessage />
         )}
+
+        {error && <ChatError chatId={chatId} />}
       </div>
-      <div
-        ref={messagesEndRef}
-        className='shrink-0 bg-blue-300 min-w-[24px] min-h-[0px]'
-      />
+      <div ref={messagesEndRef} className='shrink-0 min-w-[24px] min-h-[0px]' />
     </div>
   );
 }

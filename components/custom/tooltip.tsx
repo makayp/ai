@@ -14,7 +14,7 @@ export default function CustomTooltip({
 }) {
   return (
     <TooltipProvider>
-      <Tooltip>
+      <Tooltip delayDuration={400}>
         <TooltipTrigger>{children}</TooltipTrigger>
         <TooltipContent>
           <p>{content}</p>

@@ -43,7 +43,7 @@ function ChatInput({
   const formRef = useRef<HTMLFormElement>(null);
 
   const isMobile = useIsMobile();
-  const [textAreaFocus, setTextAreaFocus] = useState<boolean>(true);
+  const [isTextAreaFocused, setIsTextAreaFocused] = useState<boolean>(true);
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -87,14 +87,11 @@ function ChatInput({
         }
       )}
     >
-      {/* {messages.length === 0 && (
-        <SuggestedActions append={append} chatId={chatId} />
-      )} */}
       <div
         className={clsx(
-          'relative px-3 w-full rounded-2xl bg-gray-100 pt-2 pb-12 cursor-text',
+          'relative px-3 w-full rounded-2xl bg-gray-100 pt-2.5 pb-12 cursor-text',
           {
-            'ring-2 ring-ring ring-offset-2': textAreaFocus,
+            'ring-2 ring-ring ring-offset-2': isTextAreaFocused,
           }
         )}
         onClick={() => {
@@ -103,20 +100,20 @@ function ChatInput({
       >
         <Textarea
           ref={textareaRef}
-          placeholder='Send a message...'
+          placeholder='Send a Message...'
           value={inputValue}
           onChange={handleInputChange}
           className={twMerge(
-            'min-h-[45px] max-h-[calc(40dvh)] overflow-auto resize-none text-base border-none bg-transparent p-0 focus-visible:ring-0 focus-visible:ring-offset-0',
+            'min-h-[45px] max-h-[calc(40dvh)] overflow-auto resize-none text-base border-none bg-transparent p-0 focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-gray-500',
             className
           )}
           rows={1}
           autoFocus
           onFocus={() => {
-            setTextAreaFocus(true);
+            setIsTextAreaFocused(true);
           }}
           onBlur={() => {
-            setTextAreaFocus(false);
+            setIsTextAreaFocused(false);
           }}
           onKeyDown={(event) => {
             if (event.key === 'Enter' && !event.shiftKey) {

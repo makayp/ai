@@ -2,7 +2,6 @@ import ReactMarkdown, { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeSanitize from 'rehype-sanitize';
 import CodeBlock from './code-block';
-import Link from 'next/link';
 import { memo } from 'react';
 
 const components: Partial<Components> = {
@@ -25,11 +24,14 @@ const components: Partial<Components> = {
       />
     );
   },
+
   pre: ({ children }) => <>{children}</>,
+
+  p: ({ children }) => <p className='my-0 mb-4 '>{children}</p>,
 
   li: ({ children, ...props }) => {
     return (
-      <li className='py-1' {...props}>
+      <li className='py-1 marker:text-gray-600' {...props}>
         {children}
       </li>
     );
@@ -37,17 +39,22 @@ const components: Partial<Components> = {
 
   a: ({ children, ...props }) => {
     return (
-      // @ts-expect-error href property from props
-      <Link
-        className='text-blue-500 hover:underline'
+      <a
+        className='text-blue-500 no-underline hover:underline font-normal'
         target='_blank'
         rel='noreferrer'
         {...props}
       >
         {children}
-      </Link>
+      </a>
     );
   },
+  h1: ({ children }) => <h1 className='mt-0 mb-7'>{children}</h1>,
+  h2: ({ children }) => <h2 className='mt-0 mb-6'>{children}</h2>,
+  h3: ({ children }) => <h3 className='mt-0 mb-5'>{children}</h3>,
+  h4: ({ children }) => <h4 className='mt-0 mb-2'>{children}</h4>,
+  h5: ({ children }) => <h5 className='mt-0 mb-2'>{children}</h5>,
+  h6: ({ children }) => <h6 className='mt-0 mb-2'>{children}</h6>,
 };
 
 function Markdown({ children }: { children: string }) {
@@ -56,6 +63,7 @@ function Markdown({ children }: { children: string }) {
       remarkPlugins={[remarkGfm]}
       rehypePlugins={[rehypeSanitize]}
       components={components}
+      className='text-gray-700'
     >
       {children}
     </ReactMarkdown>

@@ -24,19 +24,19 @@ export default function Copy({ text }: { text: string }) {
   }
 
   return (
-    <Tooltip content='copy'>
+    <Tooltip content='Copy'>
       <Button
         asChild
         variant='ghost'
         onClick={copyToClipboard}
-        className={clsx('h-fit p-1 text-gray-600', {
+        className={clsx('h-fit p-1 text-gray-800', {
           'hover:text-gray-500': !isCopied,
         })}
       >
         {isCopied ? (
-          <Check className='size-[23px]' />
+          <Check className='size-[23px] stroke-[2.2px]' />
         ) : (
-          <CopyIcon className='size-[23px]' />
+          <CopyIcon className='size-[23px] stroke-[2.2px]' />
         )}
       </Button>
     </Tooltip>

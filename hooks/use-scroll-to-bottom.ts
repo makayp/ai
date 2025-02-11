@@ -10,13 +10,11 @@ export function useScrollToBottom<T extends HTMLElement>({
 
   const [isAtBottom, setIsAtBottom] = useState(false);
 
-  console.log(isAtBottom);
-
   useEffect(() => {
     const container = containerRef.current;
     const end = endRef.current;
     if (container && end && scrollOnLoad) {
-      end.scrollIntoView({ behavior: 'smooth' });
+      end.scrollIntoView();
     }
   }, [scrollOnLoad]);
 

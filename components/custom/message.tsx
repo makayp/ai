@@ -1,48 +1,113 @@
-import { type Message as MessageType } from 'ai';
-import { cx } from 'class-variance-authority';
-import { AnimatePresence, motion } from 'framer-motion';
-import Markdown from './markdown';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { ChatRequestOptions, type Message as MessageType } from 'ai';
+import clsx from 'clsx';
+import { motion } from 'framer-motion';
+import { Bot, Sparkles } from 'lucide-react';
 import { memo } from 'react';
-import TypingAnimation from './typing-animation';
+import Markdown from './markdown';
+import MessageActions from './message-actions';
+import { Weather } from './weather';
 
 type MessageProps = {
   message: MessageType;
+  isLastMessage: boolean;
+  isLoading: boolean;
+  reload: (
+    chatRequestOptions?: ChatRequestOptions
+  ) => Promise<string | null | undefined>;
 };
 
-function Message({ message }: MessageProps) {
-  const isUserMessage = message.role === 'user';
-
+function Message({ message, isLastMessage, isLoading, reload }: MessageProps) {
+  const isMobile = useIsMobile();
   return (
-    <AnimatePresence>
-      <motion.div
-        className='w-full group/message'
-        initial={{ y: 5, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        data-role={message.role}
-      >
-        <div className='flex gap-4 group-data-[role=user]/message:ml-auto group-data-[role=user]/message:max-w-[70%] group-data-[role=user]/message:w-fit'>
-          {!isUserMessage && (
-            <div className='size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-border'>
-              🤖
-            </div>
-          )}
-          {message.content &&
-            (isUserMessage ? (
-              <article className='bg-gray-100 px-4 py-3 rounded-xl overflow-hidden'>
-                <div className='whitespace-pre-wrap'>{message.content}</div>
-              </article>
-            ) : (
-              <article
-                className={
-                  'flex flex-col prose max-w-none overflow-hidden pt-1'
-                }
+    <div
+      className='w-full data-[role=user]:my-5 group/message mt-10'
+      data-role={message.role}
+    >
+      {message.role === 'user' &&
+        message.parts &&
+        message.parts.map(
+          (part) =>
+            part.type === 'text' && (
+              <motion.div
+                key={message.id}
+                initial={{ y: 5, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                className='bg-gray-100 px-4 py-3 rounded-xl overflow-hidden ml-auto max-w-[70%] w-fit'
               >
-                <Markdown>{message.content}</Markdown>
-              </article>
-            ))}
-        </div>
-      </motion.div>
-    </AnimatePresence>
+                <article data-role={message.role}>
+                  <div className='whitespace-pre-wrap text-gray-800'>
+                    {part.text}
+                  </div>
+                </article>
+              </motion.div>
+            )
+        )}
+
+      {message.parts && message.role === 'assistant' && (
+        <motion.div
+          initial={{ y: 5, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={isLoading ? { duration: 0 } : {}}
+          className={clsx('flex gap-3 md:gap-5 w-full rounded-xl')}
+        >
+          <div>
+            <Bot className='size-6 md:size-7 md:-mt-[3px] stroke-[1.5px]' />
+          </div>
+          <div className='flex flex-col w-full overflow-hidden'>
+            <article
+              className={
+                'flex flex-col prose max-w-none w-full overflow-hidden'
+              }
+            >
+              {message.parts.map((part) => {
+                if (
+                  part.type === 'tool-invocation' &&
+                  part.toolInvocation.state === 'result'
+                ) {
+                  const { result } = part.toolInvocation;
+
+                  if (part.toolInvocation.toolName === 'getWeather') {
+                    return (
+                      <div
+                        key={part.toolInvocation.toolCallId}
+                        className='w-full mb-5'
+                      >
+                        {!result.error && (
+                          <Weather
+                            key={part.toolInvocation.toolCallId}
+                            weatherAtLocation={result}
+                          />
+                        )}
+                      </div>
+                    );
+                  }
+                }
+
+                if (part.type === 'text') {
+                  return <Markdown key={message.id}>{part.text}</Markdown>;
+                }
+              })}
+            </article>
+            <div
+              className={clsx('transition-all duration-200 mt-2', {
+                'opacity-0 focus-within:opacity-100 group-hover/message:opacity-100':
+                  !isLastMessage,
+                'opacity-100': isMobile,
+              })}
+            >
+              {(!isLastMessage || !isLoading) && (
+                <MessageActions
+                  message={message.content}
+                  showReload={isLastMessage}
+                  reload={reload}
+                />
+              )}
+            </div>
+          </div>
+        </motion.div>
+      )}
+    </div>
   );
 }
 
@@ -53,26 +118,26 @@ export const ThinkingMessage = () => {
 
   return (
     <motion.div
-      className='w-full mx-auto max-w-3xl group/message '
-      initial={{ y: 5, opacity: 0 }}
-      animate={{ y: 0, opacity: 1, transition: { delay: 1 } }}
+      className='w-full mx-auto max-w-3xl group/message mt-10'
+      initial={{
+        y: 5,
+        opacity: 0,
+      }}
+      animate={{
+        y: 0,
+        opacity: 1,
+      }}
+      transition={{ delay: 1 }}
       data-role={role}
     >
-      <div
-        className={cx(
-          'flex gap-4 group-data-[role=user]/message:px-3 w-full group-data-[role=user]/message:w-fit group-data-[role=user]/message:ml-auto group-data-[role=user]/message:max-w-2xl group-data-[role=user]/message:py-2 rounded-xl',
-          {
-            'group-data-[role=user]/message:bg-muted': true,
-          }
-        )}
-      >
-        <div className='size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-border'>
-          🤖
+      <div className='flex gap-3 md:gap-5'>
+        <div>
+          <Bot className='size-6 md:size-7 md:-mt-[3px] stroke-[1.5px]' />
         </div>
 
-        <div className='flex flex-col gap-2 w-full pt-1'>
-          <div className='flex flex-col gap-4 text-muted-foreground'>
-            <TypingAnimation />
+        <div className='flex flex-col gap-2 w-full pt-0.5'>
+          <div className='flex flex-col gap-4 text-muted-foreground animate-pulse'>
+            Thinking
           </div>
         </div>
       </div>
