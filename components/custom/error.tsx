@@ -5,7 +5,7 @@ type ErrorProps = {
 };
 
 export default function ChatError({ chatId }: ErrorProps) {
-  const { append, reload, messages } = useChat({ id: chatId });
+  const { reload, messages } = useChat({ id: chatId });
 
   return (
     <div className='text-center text-red-500'>
@@ -15,9 +15,7 @@ export default function ChatError({ chatId }: ErrorProps) {
         onClick={() => {
           const lastMessage = messages[messages.length - 1];
 
-          if (lastMessage && lastMessage.role === 'user') {
-            append(messages.pop()!);
-          } else {
+          if (lastMessage) {
             reload();
           }
         }}

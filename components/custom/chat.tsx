@@ -7,6 +7,7 @@ import { generateRandomUUID } from '@/lib/utils';
 import { toast } from 'sonner';
 import Overview from './overview';
 import { useEffect } from 'react';
+import { formatDistanceToNow } from 'date-fns';
 
 type ChatProps = {
   id: string;
@@ -35,8 +36,30 @@ export default function Chat({ id, initialMessages }: ChatProps) {
 
   useEffect(() => {
     if (error) {
-      console.log(JSON.stringify(error));
-      toast.error(error.message);
+      try {
+        const parsedError = JSON.parse(error.message);
+        if (parsedError.rateLimit) {
+          const { type, reset } = parsedError.rateLimit;
+
+          const timeRemaining = formatDistanceToNow(new Date(reset), {
+            addSuffix: true,
+          });
+
+          if (type === 'request-per-minute') {
+            toast.error('Too many requests. Try again in a few minutes.');
+          }
+          if (type === 'request-per-day') {
+            toast.error(
+              `Daily request limit reached. Try again ${timeRemaining}.`
+            );
+          }
+        } else {
+          toast.error('Something went wrong.');
+        }
+      } catch (error) {
+        console.error('Error parsing error message:', error);
+        toast.error('An error occurred.');
+      }
     }
   }, [error]);
 
