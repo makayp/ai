@@ -41,14 +41,12 @@ export default function Chat({ id, initialMessages }: ChatProps) {
         if (parsedError.rateLimit) {
           const { type, reset } = parsedError.rateLimit;
 
-          const timeRemaining = formatDistanceToNow(new Date(reset), {
-            addSuffix: true,
-          });
-
-          if (type === 'request-per-minute') {
+          if (type === 'request-per-minute' || type === 'too-many-requests') {
             toast.error('Too many requests. Try again in a few minutes.');
-          }
-          if (type === 'request-per-day') {
+          } else if (type === 'request-per-day') {
+            const timeRemaining = formatDistanceToNow(new Date(reset), {
+              addSuffix: true,
+            });
             toast.error(
               `Daily request limit reached. Try again ${timeRemaining}.`
             );

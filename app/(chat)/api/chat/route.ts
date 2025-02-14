@@ -43,10 +43,10 @@ export async function POST(req: Request) {
         if (RetryError.isInstance(error)) {
           if (APICallError.isInstance(error.lastError)) {
             if (error.lastError.statusCode === 429) {
-              console.log('Retry: ', error.lastError.statusCode);
               console.log(error.lastError);
               return JSON.stringify({
-                message: 'Too many requests. Please try again later.',
+                message: 'Daily request limit reached. Try again tomorrow.',
+                rateLimit: { type: 'too-many-requests' },
               });
             }
           }
