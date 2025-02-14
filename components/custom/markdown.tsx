@@ -1,8 +1,12 @@
+import { memo } from 'react';
 import ReactMarkdown, { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeSanitize from 'rehype-sanitize';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import 'katex/dist/katex.min.css';
 import CodeBlock from './code-block';
-import { memo } from 'react';
+import { preprocessLaTeX } from '@/lib/utils';
 
 const components: Partial<Components> = {
   table(props) {
@@ -50,14 +54,16 @@ const components: Partial<Components> = {
 };
 
 function Markdown({ children }: { children: string }) {
+  const parsedLatex = preprocessLaTeX(children);
+
   return (
     <ReactMarkdown
-      remarkPlugins={[remarkGfm]}
-      rehypePlugins={[rehypeSanitize]}
+      remarkPlugins={[remarkGfm, remarkMath]}
+      rehypePlugins={[rehypeSanitize, rehypeKatex]}
       components={components}
       className='prose max-w-none text-gray-900'
     >
-      {children}
+      {parsedLatex}
     </ReactMarkdown>
   );
 }

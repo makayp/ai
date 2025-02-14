@@ -120,7 +120,7 @@ export const ThinkingMessage = () => {
           <Bot className='size-6 md:size-7 md:-mt-[3px] stroke-[1.5px]' />
         </div>
 
-        <div className='flex flex-col gap-2 w-full pt-0.5'>
+        <div className='flex flex-col gap-2 w-full pt-px'>
           <motion.div
             initial={{
               y: 5,
@@ -131,9 +131,9 @@ export const ThinkingMessage = () => {
               opacity: 1,
             }}
             transition={{ delay: 2 }}
-            className='flex flex-col gap-4 text-muted-foreground animate-pulse'
+            className='text-muted-foreground'
           >
-            Thinking
+            <p className='animate-pulse'>Thinking</p>
           </motion.div>
         </div>
       </div>

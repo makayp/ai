@@ -20,3 +20,22 @@ export function isLastMessage({
 }): boolean {
   return messages[messages.length - 1]?.id === message.id;
 }
+
+export function preprocessLaTeX(content: string) {
+  // Escape LaTeX-specific backslashes first, to avoid issues with escaped delimiters
+  const escapedContent = content.replace(/\\([\\()[]{}^$&])/g, '\\$1');
+
+  // Replace block-level LaTeX delimiters \[ \] with $$ $$
+  const blockProcessedContent = escapedContent.replace(
+    /\\\[(.*?)\\\]/gs,
+    (_, equation) => `$$${equation}$$`
+  );
+
+  // Replace inline LaTeX delimiters \( \) with $ $
+  const inlineProcessedContent = blockProcessedContent.replace(
+    /\\\((.*?)\\\)/gs,
+    (_, equation) => `$${equation}$`
+  );
+
+  return inlineProcessedContent;
+}
