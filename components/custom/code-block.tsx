@@ -1,5 +1,5 @@
 import SyntaxHighlighter from 'react-syntax-highlighter';
-import { atomOneLight } from 'react-syntax-highlighter/dist/esm/styles/hljs';
+import { xcode } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import Copy from './copy';
 import { memo } from 'react';
 
@@ -14,9 +14,9 @@ function CodeBlock({ language, codeString, isBlockCode }: CodeBoxProps) {
     <>
       {isBlockCode && (
         <div className='bg-gray-50 rounded-lg border border-gray-200/80 mb-8'>
-          <div className='flex justify-between  items-center h-[40px] bg-gray-100 py-3 px-4 rounded-t-xl text-sm font-semibold'>
+          <div className='flex justify-between  items-center h-[40px] bg-gray-100 py-3 pl-4 rounded-t-xl text-sm font-semibold'>
             <span>{language ? language : 'code'}</span>
-            <Copy text={codeString} />
+            <Copy text={codeString} className='hover:text-gray-600' />
           </div>
 
           <div className='overflow-x-auto text-sm not-prose leading-6'>
@@ -24,8 +24,7 @@ function CodeBlock({ language, codeString, isBlockCode }: CodeBoxProps) {
               PreTag={'div'}
               className='!bg-transparent !px-5 !py-5'
               language={language}
-              style={language ? atomOneLight : {}}
-              // style={theme.colorBrewer}
+              style={language ? xcode : {}}
             >
               {codeString}
             </SyntaxHighlighter>

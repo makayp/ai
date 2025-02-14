@@ -2,7 +2,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { ChatRequestOptions, type Message as MessageType } from 'ai';
 import clsx from 'clsx';
 import { motion } from 'framer-motion';
-import { Bot, Sparkles } from 'lucide-react';
+import { Bot } from 'lucide-react';
 import { memo } from 'react';
 import Markdown from './markdown';
 import MessageActions from './message-actions';
@@ -21,7 +21,7 @@ function Message({ message, isLastMessage, isLoading, reload }: MessageProps) {
   const isMobile = useIsMobile();
   return (
     <div
-      className='w-full data-[role=user]:my-5 group/message mt-10'
+      className='text-gray-900 w-full data-[role=user]:my-5 group/message mt-10'
       data-role={message.role}
     >
       {message.role === 'user' &&
@@ -33,12 +33,10 @@ function Message({ message, isLastMessage, isLoading, reload }: MessageProps) {
                 key={message.id}
                 initial={{ y: 5, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                className='bg-gray-100 px-4 py-3 rounded-xl overflow-hidden ml-auto max-w-[70%] w-fit'
+                className='bg-gray-100 px-4 py-3 rounded-xl overflow-hidden ml-auto max-w-[80%] w-fit'
               >
                 <article data-role={message.role}>
-                  <div className='whitespace-pre-wrap text-gray-800'>
-                    {part.text}
-                  </div>
+                  <div className='whitespace-pre-wrap'>{part.text}</div>
                 </article>
               </motion.div>
             )
@@ -55,11 +53,7 @@ function Message({ message, isLastMessage, isLoading, reload }: MessageProps) {
             <Bot className='size-6 md:size-7 md:-mt-[3px] stroke-[1.5px]' />
           </div>
           <div className='flex flex-col w-full overflow-hidden'>
-            <article
-              className={
-                'flex flex-col prose max-w-none w-full overflow-hidden'
-              }
-            >
+            <article className={'flex flex-col w-full overflow-hidden'}>
               {message.parts.map((part) => {
                 if (
                   part.type === 'tool-invocation' &&
@@ -117,17 +111,8 @@ export const ThinkingMessage = () => {
   const role = 'assistant';
 
   return (
-    <motion.div
+    <div
       className='w-full mx-auto max-w-3xl group/message mt-10'
-      initial={{
-        y: 5,
-        opacity: 0,
-      }}
-      animate={{
-        y: 0,
-        opacity: 1,
-      }}
-      transition={{ delay: 1 }}
       data-role={role}
     >
       <div className='flex gap-3 md:gap-5'>
@@ -136,11 +121,22 @@ export const ThinkingMessage = () => {
         </div>
 
         <div className='flex flex-col gap-2 w-full pt-0.5'>
-          <div className='flex flex-col gap-4 text-muted-foreground animate-pulse'>
+          <motion.div
+            initial={{
+              y: 5,
+              opacity: 0,
+            }}
+            animate={{
+              y: 0,
+              opacity: 1,
+            }}
+            transition={{ delay: 2 }}
+            className='flex flex-col gap-4 text-muted-foreground animate-pulse'
+          >
             Thinking
-          </div>
+          </motion.div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };

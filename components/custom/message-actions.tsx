@@ -16,10 +16,15 @@ export default function MessageActions({
   showReload,
 }: MessageActionsProps) {
   return (
-    <div className='flex items-center gap-3 bg-gray-100 w-fit px-3 py-1 rounded-lg'>
-      <Copy text={message} />
+    <div className='flex items-center gap-3 w-fit rounded-lg mt-2 [&_svg]:size-3.5k'>
+      <Copy
+        text={message}
+        description='Copy response'
+        variant='outline'
+        className='p-2 h-fit'
+      />
 
-      {showReload && <ReloadButton onClick={reload} />}
+      {showReload && <ReloadButton onClick={reload} className='p-2 h-fit' />}
     </div>
   );
 }

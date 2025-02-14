@@ -3,11 +3,30 @@
 import { Check, CopyIcon } from 'lucide-react';
 import { Button } from '../ui/button';
 import Tooltip from './tooltip';
-import { useState } from 'react';
-import clsx from 'clsx';
+import { useEffect, useState } from 'react';
+import { twMerge } from 'tailwind-merge';
+import { toast } from 'sonner';
 
-export default function Copy({ text }: { text: string }) {
+type CopyProps = {
+  text: string;
+  description?: string;
+  variant?: 'ghost' | 'outline';
+  className?: string;
+};
+
+export default function Copy({
+  text,
+  description,
+  variant = 'ghost',
+  className,
+}: CopyProps) {
   const [isCopied, setIsCopied] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (isCopied) {
+      toast.success('Copied to clipboard');
+    }
+  }, [isCopied]);
 
   async function copyToClipboard() {
     if (!navigator?.clipboard || isCopied) return;
@@ -24,19 +43,16 @@ export default function Copy({ text }: { text: string }) {
   }
 
   return (
-    <Tooltip content='Copy'>
+    <Tooltip content={isCopied ? 'Copied' : description || 'Copy'}>
       <Button
-        asChild
-        variant='ghost'
+        variant={variant}
         onClick={copyToClipboard}
-        className={clsx('h-fit p-1 text-gray-800', {
-          'hover:text-gray-500': !isCopied,
-        })}
+        className={twMerge('text-gray-700', className)}
       >
         {isCopied ? (
-          <Check className='size-[23px] stroke-[2.2px]' />
+          <Check className='stroke-[2.2px]' />
         ) : (
-          <CopyIcon className='size-[23px] stroke-[2.2px]' />
+          <CopyIcon className='stroke-[2.2px]' />
         )}
       </Button>
     </Tooltip>
