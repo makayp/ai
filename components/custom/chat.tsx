@@ -35,6 +35,10 @@ export default function Chat({ id, initialMessages }: ChatProps) {
   });
 
   useEffect(() => {
+    stop();
+  }, [chatId, stop]);
+
+  useEffect(() => {
     if (error) {
       try {
         const parsedError = JSON.parse(error.message);
