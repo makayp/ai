@@ -13,7 +13,7 @@ import { models } from '@/lib/ai/models';
 import { cn } from '@/lib/utils';
 import { CheckIcon, ChevronDownIcon } from 'lucide-react';
 
-export function ModelSelector({
+export function LogoWithModelSelector({
   selectedModelId,
   className,
 }: {
@@ -31,13 +31,13 @@ export function ModelSelector({
       <DropdownMenuTrigger
         asChild
         className={cn(
-          'w-fit data-[state=open]:bg-accent data-[state=open]:text-accent-foreground shadow-none border-0 text-gray-600',
+          'w-fit data-[state=open]:bg-accent shadow-none border-0 text-gray-600 hover:text-gray-600 focus-visible:ring-0',
           className
         )}
       >
         <Button
           variant='outline'
-          className='md:px-4 md:h-[34px] flex items-center text-pretty text-[17px] sm:text-lg md:text-[19px] font-semibold'
+          className='md:px-4 md:h-[34px] flex items-center text-[17px] sm:text-lg md:text-[19px]j font-semibold'
         >
           AIPro {selectedModel?.label}
           <ChevronDownIcon />
