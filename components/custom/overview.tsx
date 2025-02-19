@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import SuggestedActions from './suggested-actions';
 import { ChatRequestOptions, CreateMessage, type Message } from 'ai';
+import { memo } from 'react';
 
 type OverviewProps = {
   chatId: string;
@@ -10,7 +11,7 @@ type OverviewProps = {
   ) => Promise<string | null | undefined>;
 };
 
-export default function Overview({ chatId, append }: OverviewProps) {
+function Overview({ chatId, append }: OverviewProps) {
   return (
     <AnimatePresence>
       <motion.div
@@ -32,3 +33,5 @@ export default function Overview({ chatId, append }: OverviewProps) {
     </AnimatePresence>
   );
 }
+
+export default memo(Overview);
