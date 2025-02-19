@@ -22,14 +22,16 @@ const components: Partial<Components> = {
 
     return (
       <CodeBlock
-        isBlockCode={!!match}
+        isBlockCode={!!match || !!children?.toString().includes('\n')}
         language={match?.[1]}
         codeString={String(children).replace(/\n$/, '')}
       />
     );
   },
 
-  pre: ({ children }) => <>{children}</>,
+  pre: ({ children }) => (
+    <pre className='p-0 bg-transparent text-gray-800'>{children}</pre>
+  ),
 
   a: ({ children, ...props }) => {
     return (
