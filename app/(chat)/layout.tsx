@@ -1,5 +1,7 @@
 import Header from '@/components/custom/header';
 
+export const dynamic = 'force-dynamic';
+
 export default function ChatLayout({
   children,
 }: Readonly<{
