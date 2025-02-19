@@ -15,7 +15,6 @@ type ChatInputProps = {
   setInput: (value: string) => void;
   isLoading: boolean;
   stop: () => void;
-  messages: Array<Message>;
   append: (
     message: Message | CreateMessage,
     chatRequestOptions?: ChatRequestOptions
@@ -31,11 +30,11 @@ type ChatInputProps = {
 };
 
 function ChatInput({
+  chatId,
   inputValue,
   setInput,
   isLoading,
   stop,
-  messages,
   append,
   className,
 }: ChatInputProps) {
@@ -44,6 +43,10 @@ function ChatInput({
 
   const isMobile = useIsMobile();
   const [isTextAreaFocused, setIsTextAreaFocused] = useState<boolean>(true);
+
+  useEffect(() => {
+    setInput('');
+  }, [setInput, chatId]);
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -81,15 +84,12 @@ function ChatInput({
     <form
       ref={formRef}
       className={clsx(
-        'relative flex flex-col items-center gap-4 mx-auto w-[calc(100dvw-32px)] sm:w-[calc(100%-70px)] max-w-3xl',
-        {
-          'sm:pl-5': messages.length > 0,
-        }
+        'relative flex flex-col items-center gap-4 mx-auto w-[calc(100dvw-32px)] max-w-3xl'
       )}
     >
       <div
         className={clsx(
-          'relative px-3 w-full rounded-2xl bg-gray-100 pt-2.5 pb-12 cursor-text',
+          'relative px-3 w-full rounded-2xl bg-neutral-100 pt-2.5 pb-12 cursor-text',
           {
             'ring-2 ring-ring ring-offset-2': isTextAreaFocused,
           }
@@ -104,7 +104,7 @@ function ChatInput({
           value={inputValue}
           onChange={handleInputChange}
           className={twMerge(
-            'min-h-[45px] max-h-[calc(40dvh)] overflow-auto resize-none text-base border-none bg-transparent p-0 focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-gray-500',
+            'min-h-[45px] max-h-[calc(30dvh)] overflow-auto resize-none text-base border-none bg-transparent p-0 focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-gray-500',
             className
           )}
           rows={1}

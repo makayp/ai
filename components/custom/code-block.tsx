@@ -1,5 +1,5 @@
 import SyntaxHighlighter from 'react-syntax-highlighter';
-import { xcode } from 'react-syntax-highlighter/dist/esm/styles/hljs';
+import { atomOneLight } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import Copy from './copy';
 import { memo } from 'react';
 
@@ -26,7 +26,7 @@ function CodeBlock({ language, codeString, isBlockCode }: CodeBoxProps) {
               PreTag={'div'}
               className='!bg-transparent !px-5 !py-5'
               language={language}
-              style={language ? xcode : {}}
+              style={language ? atomOneLight : {}}
             >
               {codeString}
             </SyntaxHighlighter>

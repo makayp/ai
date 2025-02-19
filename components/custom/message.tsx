@@ -33,7 +33,7 @@ function Message({ message, isLastMessage, isLoading, reload }: MessageProps) {
                 key={message.id}
                 initial={{ y: 5, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                className='bg-gray-100 px-4 py-3 rounded-xl overflow-hidden ml-auto max-w-[80%] w-fit'
+                className='bg-neutral-100 px-4 py-3 rounded-xl overflow-hidden ml-auto max-w-[80%] w-fit'
               >
                 <article data-role={message.role}>
                   <div className='whitespace-pre-wrap'>{part.text}</div>
@@ -130,7 +130,7 @@ export const ThinkingMessage = () => {
               y: 0,
               opacity: 1,
             }}
-            transition={{ delay: 2 }}
+            transition={{ delay: 4 }}
             className='text-muted-foreground'
           >
             <p className='animate-pulse'>Thinking</p>

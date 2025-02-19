@@ -81,7 +81,6 @@ export default function Chat({ id, initialMessages }: ChatProps) {
         setInput={setInput}
         isLoading={isLoading}
         stop={stop}
-        messages={messages}
         chatId={chatId}
         handleSubmit={handleSubmit}
       />
