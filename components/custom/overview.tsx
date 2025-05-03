@@ -1,7 +1,7 @@
-import { AnimatePresence, motion } from 'framer-motion';
-import SuggestedActions from './suggested-actions';
 import { ChatRequestOptions, CreateMessage, type Message } from 'ai';
+import { motion } from 'framer-motion';
 import { memo } from 'react';
+import { ChatSuggestions } from './chat-suggestions';
 
 type OverviewProps = {
   chatId: string;
@@ -11,26 +11,34 @@ type OverviewProps = {
   ) => Promise<string | null | undefined>;
 };
 
-function Overview({ chatId, append }: OverviewProps) {
+function Overview({ append }: OverviewProps) {
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 20 }}
-        className='overflow-auto w-full flex-1 pt-6 pb-16'
-      >
-        <div className='flex items-center justify-center w-[calc(100%-32px)] sm:w-[calc(100%-70px)] max-w-3xl mx-auto rounded-xl text-center h-full min-h-fit'>
-          <div className='flex flex-col gap-10 w-full'>
-            <h1 className='text-xl sm:text-2xl font-semibold text-gray-600'>
-              How Can I Assist You Today?
-            </h1>
-
-            <SuggestedActions chatId={chatId} append={append} />
+    <div className='overflow-auto w-full flex-1 pt-20 md:pt-6 pb-16 transition-all duration-300 ease-in-out'>
+      <div className='flex items-center justify-center w-[calc(100%-32px)] max-w-2xl mx-auto rounded-xl text-center h-full min-h-fit'>
+        <div className='flex flex-col gap-5 w-full'>
+          <div>
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className='text-xl sm:text-2xl font-semibold text-foreground'
+            >
+              Hi there!
+            </motion.h1>
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className='text-xl sm:text-2xl font-semibold text-muted-foreground'
+            >
+              How can I assist you today?
+            </motion.h1>
           </div>
+
+          <ChatSuggestions onSelect={append} />
         </div>
-      </motion.div>
-    </AnimatePresence>
+      </div>
+    </div>
   );
 }
 

@@ -1,7 +1,7 @@
-import SyntaxHighlighter from 'react-syntax-highlighter';
-import { atomOneLight } from 'react-syntax-highlighter/dist/esm/styles/hljs';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import Copy from './copy';
 import { memo } from 'react';
+import { oneLight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 
 type CodeBoxProps = {
   codeString: string;
@@ -23,10 +23,10 @@ function CodeBlock({ language, codeString, isBlockCode }: CodeBoxProps) {
 
           <div className='overflow-x-auto not-prose leading-6'>
             <SyntaxHighlighter
-              PreTag={'div'}
+              PreTag='div'
               className='!bg-transparent !px-5 !py-5'
               language={language}
-              style={language ? atomOneLight : {}}
+              style={oneLight}
             >
               {codeString}
             </SyntaxHighlighter>

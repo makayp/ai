@@ -7,19 +7,18 @@ import {
 } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { generateRandomUUID } from '@/lib/utils';
-import { getWeather } from '@/lib/ai/tools';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { base } from '@/lib/ai/system-prompts';
 
-export const maxDuration = 30;
+export const maxDuration = 60;
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     const { messages } = await req.json();
     return createDataStreamResponse({
       execute: (dataStream) => {
         const result = streamText({
-          model: openai('gpt-4o-mini'),
+          model: openai.responses('gpt-4.1-mini'),
           system: base,
           messages,
           maxTokens: 2000,
@@ -29,7 +28,9 @@ export async function POST(req: Request) {
           experimental_transform: smoothStream({ chunking: 'word' }),
           experimental_generateMessageId: generateRandomUUID,
           tools: {
-            getWeather,
+            web_search_preview: openai.tools.webSearchPreview({
+              searchContextSize: 'low',
+            }),
           },
         });
 

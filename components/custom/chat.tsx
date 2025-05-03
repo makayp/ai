@@ -1,13 +1,15 @@
 'use client';
 
-import { Message, useChat } from 'ai/react';
+import { Message, useChat } from '@ai-sdk/react';
 import ChatInput from './chat-input';
 import Messages from './messages';
 import { generateRandomUUID } from '@/lib/utils';
 import { toast } from 'sonner';
 import Overview from './overview';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
+import { Attachment } from 'ai';
+import Header from './header';
 
 type ChatProps = {
   id: string;
@@ -22,6 +24,7 @@ export default function Chat({ id, initialMessages }: ChatProps) {
     input,
     setInput,
     append,
+    status,
     isLoading,
     stop,
     reload,
@@ -33,6 +36,8 @@ export default function Chat({ id, initialMessages }: ChatProps) {
     sendExtraMessageFields: true,
     generateId: generateRandomUUID,
   });
+
+  const [attachments, setAttachments] = useState<Array<Attachment>>([]);
 
   useEffect(() => {
     stop();
@@ -67,6 +72,8 @@ export default function Chat({ id, initialMessages }: ChatProps) {
 
   return (
     <div className='flex flex-col h-full w-full'>
+      <Header />
+
       {messages.length === 0 && <Overview chatId={chatId} append={append} />}
 
       {messages.length > 0 && (
@@ -83,7 +90,10 @@ export default function Chat({ id, initialMessages }: ChatProps) {
         append={append}
         inputValue={input}
         setInput={setInput}
+        status={status}
         isLoading={isLoading}
+        attachments={attachments}
+        setAttachments={setAttachments}
         stop={stop}
         chatId={chatId}
         handleSubmit={handleSubmit}

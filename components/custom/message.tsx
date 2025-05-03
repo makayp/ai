@@ -7,6 +7,7 @@ import { memo } from 'react';
 import Markdown from './markdown';
 import MessageActions from './message-actions';
 import { Weather } from './weather';
+import { PreviewAttachment } from './preview-attachment';
 
 type MessageProps = {
   message: MessageType;
@@ -19,6 +20,7 @@ type MessageProps = {
 
 function Message({ message, isLastMessage, isLoading, reload }: MessageProps) {
   const isMobile = useIsMobile();
+  // console.log(message);
   return (
     <div
       className='text-gray-900 w-full data-[role=user]:my-5 group/message mt-10'
@@ -33,10 +35,27 @@ function Message({ message, isLastMessage, isLoading, reload }: MessageProps) {
                 key={message.id}
                 initial={{ y: 5, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                className='bg-neutral-100 px-4 py-3 rounded-xl overflow-hidden ml-auto max-w-[80%] w-fit'
+                className='overflow-hidden ml-auto max-w-[80%] w-fit'
               >
+                {message.experimental_attachments &&
+                  message.experimental_attachments.length > 0 && (
+                    <div
+                      data-testid={`message-attachments`}
+                      className='flex flex-row justify-end gap-2'
+                    >
+                      {message.experimental_attachments.map((attachment) => (
+                        <PreviewAttachment
+                          key={attachment.url}
+                          attachment={attachment}
+                        />
+                      ))}
+                    </div>
+                  )}
+
                 <article data-role={message.role}>
-                  <div className='whitespace-pre-wrap'>{part.text}</div>
+                  <div className='whitespace-pre-wrap bg-secondary rounded-2xl px-4 py-3 mt-4'>
+                    {part.text}
+                  </div>
                 </article>
               </motion.div>
             )
@@ -49,9 +68,9 @@ function Message({ message, isLastMessage, isLoading, reload }: MessageProps) {
           transition={isLoading ? { duration: 0 } : {}}
           className={clsx('flex gap-3 md:gap-5 w-full rounded-xl')}
         >
-          <div>
+          {/* <div>
             <Bot className='size-6 md:size-7 md:-mt-[3px] stroke-[1.5px]' />
-          </div>
+          </div> */}
           <div className='flex flex-col w-full overflow-hidden'>
             <article className={'flex flex-col w-full overflow-hidden'}>
               {message.parts.map((part) => {
@@ -76,6 +95,28 @@ function Message({ message, isLastMessage, isLoading, reload }: MessageProps) {
                       </div>
                     );
                   }
+                }
+
+                if (part.type === 'source') {
+                  console.log(part);
+                  // const { toolName } = part.toolInvocation;
+
+                  // if (part.toolInvocation.toolName === 'getWeather') {
+                  // return (
+                  //   <div
+                  //     key={part.toolInvocation.toolCallId}
+                  //     className='w-full mb-5'
+                  //   >
+                  //     {/* {!result.error && (
+                  //         <Weather
+                  //           key={part.toolInvocation.toolCallId}
+                  //           weatherAtLocation={result}
+                  //         />
+                  //       )} */}
+                  //     {toolName}
+                  //   </div>
+                  // );
+                  // }
                 }
 
                 if (part.type === 'text') {
@@ -116,9 +157,9 @@ export const ThinkingMessage = () => {
       data-role={role}
     >
       <div className='flex gap-3 md:gap-5'>
-        <div>
+        {/* <div>
           <Bot className='size-6 md:size-7 md:-mt-[3px] stroke-[1.5px]' />
-        </div>
+        </div> */}
 
         <div className='flex flex-col gap-2 w-full pt-px'>
           <motion.div
