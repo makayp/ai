@@ -1,6 +1,8 @@
 import Chat from '../../components/custom/chat';
 import { generateRandomUUID } from '@/lib/utils';
 
+export const revalidate = 0;
+
 export default async function Home() {
   const id = generateRandomUUID();
 
