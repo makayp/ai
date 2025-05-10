@@ -1,16 +1,15 @@
 'use client';
 
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Attachment, ChatRequestOptions, CreateMessage, Message } from 'ai';
 import {
-  ArrowUpIcon,
-  Bold,
-  Brain,
-  Lightbulb,
-  PaperclipIcon,
-  Plus,
-  StopCircle,
-} from 'lucide-react';
+  ALLOWED_ATTACHMENT_TYPES,
+  MAX_ATTACHMENT_SIZE,
+  MAX_ATTACHMENTS,
+} from '@/lib/config';
+import { UseChatHelpers } from '@ai-sdk/react';
+import { Attachment } from 'ai';
+import clsx from 'clsx';
+import { ArrowUpIcon, Plus, StopCircle } from 'lucide-react';
 import React, {
   ChangeEvent,
   Dispatch,
@@ -25,10 +24,7 @@ import { toast } from 'sonner';
 import { twMerge } from 'tailwind-merge';
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
-import clsx from 'clsx';
-import { UseChatHelpers } from '@ai-sdk/react';
 import { PreviewAttachment } from './preview-attachment';
-import { Toggle } from '../ui/toggle';
 
 type ChatInputProps = {
   inputValue: string;
@@ -60,7 +56,6 @@ function ChatInput({
   const formRef = useRef<HTMLFormElement>(null);
 
   const isMobile = useIsMobile();
-  const [isTextAreaFocused, setIsTextAreaFocused] = useState<boolean>(true);
 
   useEffect(() => {
     setInput('');
@@ -85,40 +80,77 @@ function ChatInput({
     setInput(event.target.value);
   };
 
-  // const fileInputRef = useRef<HTMLInputElement>(null);
-  // const [uploadQueue, setUploadQueue] = useState<Array<string>>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadQueue, setUploadQueue] = useState<Array<string>>([]);
 
-  // const handleFileChange = useCallback(
-  //   async (event: ChangeEvent<HTMLInputElement>) => {
-  //     const files = Array.from(event.target.files || []);
+  const removeAttachment = useCallback(
+    (index: number) => {
+      setAttachments((currentAttachments) =>
+        currentAttachments.filter(
+          (a) => currentAttachments.indexOf(a) !== index
+        )
+      );
+    },
+    [setAttachments]
+  );
 
-  //     setUploadQueue(files.map((file) => file.name));
+  const handleFileChange = useCallback(
+    async (event: ChangeEvent<HTMLInputElement>) => {
+      const files = Array.from(event.target.files || []);
 
-  //     try {
-  //       files.map((file) => {
-  //         const reader = new FileReader();
-  //         reader.onload = async () => {
-  //           const base64 = reader.result;
+      if (files.length === 0) return;
 
-  //           setAttachments((currentAttachments) => [
-  //             ...currentAttachments,
-  //             {
-  //               url: base64 as string,
-  //               name: file.name,
-  //               contentType: file.type,
-  //             },
-  //           ]);
-  //         };
-  //         reader.readAsDataURL(file);
-  //       });
-  //     } catch (error) {
-  //       console.error('Error uploading files!', error);
-  //     } finally {
-  //       setUploadQueue([]);
-  //     }
-  //   },
-  //   [setAttachments]
-  // );
+      if (files.some((file) => !ALLOWED_ATTACHMENT_TYPES.includes(file.type))) {
+        toast.error('Only JPEG, PNG, and WEBP image formats are allowed.');
+      }
+      if (files.some((file) => file.size > MAX_ATTACHMENT_SIZE)) {
+        toast.error(`One or more files are too large. Max size is 10MB.`);
+      }
+
+      const allowedFiles = files.filter(
+        (file) =>
+          ALLOWED_ATTACHMENT_TYPES.includes(file.type) &&
+          file.size <= MAX_ATTACHMENT_SIZE
+      );
+
+      setUploadQueue(allowedFiles.map((file) => file.name));
+
+      try {
+        allowedFiles.map(async (file) => {
+          const reader = new FileReader();
+          reader.onload = async () => {
+            const base64 = reader.result;
+
+            setAttachments((currentAttachments) => {
+              const updatedAttachments = [
+                ...currentAttachments,
+                {
+                  url: base64 as string,
+                  name: file.name,
+                  contentType: file.type,
+                },
+              ];
+
+              if (updatedAttachments.length > MAX_ATTACHMENTS) {
+                toast.error(
+                  `You can only upload ${MAX_ATTACHMENTS} files at a time.`
+                );
+                updatedAttachments.slice(0, MAX_ATTACHMENTS);
+              }
+              return updatedAttachments;
+            });
+          };
+          reader.readAsDataURL(file);
+        });
+      } catch (error) {
+        console.error('Error attaching files!', error);
+      } finally {
+        setUploadQueue([]);
+        fileInputRef.current!.value = '';
+      }
+    },
+    [setAttachments]
+  );
 
   const submitForm = useCallback(() => {
     if (!inputValue.trim()) return;
@@ -149,35 +181,42 @@ function ChatInput({
       )}
     >
       <div
-        className='relative px-2.5 md:pl-4 w-full py-2 cursor-text'
-        onClick={() => {
+        className='relative px-2.5 md:pl-4 w-full py-2'
+        onClick={(e) => {
+          if (['BUTTON', 'INPUT'].includes((e.target as HTMLElement).tagName)) {
+            return;
+          }
           textareaRef.current?.focus();
         }}
       >
-        {/* <input
+        <input
           type='file'
           className='fixed -top-4 -left-4 size-0.5 opacity-0 pointer-events-none'
           ref={fileInputRef}
           multiple
+          accept='image/jpg,image/jpeg,image/png,image/webp'
           onChange={handleFileChange}
           tabIndex={-1}
-          onClick={(event) => {
-            event.stopPropagation();
-          }}
-        /> */}
+        />
 
-        {/* {(attachments.length > 0 || uploadQueue.length > 0) && (
+        {(attachments.length > 0 || uploadQueue.length > 0) && (
           <div
             data-testid='attachments-preview'
             className='flex flex-row gap-2 overflow-x-scroll items-end'
           >
-            {attachments.map((attachment) => (
-              <PreviewAttachment key={attachment.url} attachment={attachment} />
+            {attachments.map((attachment, index) => (
+              <PreviewAttachment
+                id={index}
+                key={attachment.url + index}
+                attachment={attachment}
+                onRemove={removeAttachment}
+              />
             ))}
 
-            {uploadQueue.map((filename) => (
+            {uploadQueue.map((filename, index) => (
               <PreviewAttachment
-                key={filename}
+                id={index}
+                key={filename + index}
                 attachment={{
                   url: '',
                   name: filename,
@@ -187,7 +226,7 @@ function ChatInput({
               />
             ))}
           </div>
-        )} */}
+        )}
 
         <Textarea
           ref={textareaRef}
@@ -200,12 +239,6 @@ function ChatInput({
           )}
           rows={1}
           autoFocus
-          onFocus={() => {
-            setIsTextAreaFocused(true);
-          }}
-          onBlur={() => {
-            setIsTextAreaFocused(false);
-          }}
           onKeyDown={(event) => {
             if (event.key === 'Enter' && !event.shiftKey) {
               if (isMobile) return;
@@ -224,19 +257,20 @@ function ChatInput({
 
         <div className='flex flex-row justify-between items-end md:items-center'>
           <div>
-            {/* <Button
+            <Button
               size='icon'
               variant='outline'
               className='shadow-none rounded-full mr-2'
-              disabled={status !== 'ready'}
+              disabled={
+                status !== 'ready' || attachments.length >= MAX_ATTACHMENTS
+              }
               onClick={(event) => {
                 event.preventDefault();
-                event.stopPropagation();
                 fileInputRef.current?.click();
               }}
             >
               <Plus size={14} />
-            </Button> */}
+            </Button>
             {/* <Toggle
               variant='outline'
               className='mr-2 rounded-full h-fit px-3 py-1 shadow-none text-foreground/80'
@@ -254,7 +288,6 @@ function ChatInput({
                 className='rounded-full text-white'
                 onClick={(event) => {
                   event.preventDefault();
-                  event.stopPropagation();
                   stop();
                 }}
               >
@@ -265,7 +298,6 @@ function ChatInput({
                 size='icon'
                 className='rounded-full text-white disabled:pointer-events-auto'
                 onClick={(event) => {
-                  event.stopPropagation();
                   event.preventDefault();
                   submitForm();
                 }}
