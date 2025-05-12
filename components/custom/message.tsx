@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { memo } from 'react';
 import Markdown from './markdown';
 import MessageActions from './message-actions';
-import { PreviewAttachment } from './preview-attachment';
+import PreviewAttachment from './preview-attachment';
 import { Weather } from './weather';
 
 type MessageProps = {

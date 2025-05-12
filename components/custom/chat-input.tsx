@@ -19,7 +19,7 @@ import { toast } from 'sonner';
 import { twMerge } from 'tailwind-merge';
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
-import { PreviewAttachment } from './preview-attachment';
+import PreviewAttachment from './preview-attachment';
 
 type ChatInputProps = {
   inputValue: string;
@@ -106,7 +106,7 @@ function ChatInput({
   const submitForm = useCallback(() => {
     if (!inputValue.trim()) return;
     handleSubmit(undefined, {
-      experimental_attachments: fileInputRef.current?.files || [],
+      experimental_attachments: attachments,
     });
 
     setInput('');
@@ -115,7 +115,14 @@ function ChatInput({
     if (!isMobile) {
       textareaRef.current?.focus();
     }
-  }, [handleSubmit, inputValue, isMobile, setAttachments, setInput]);
+  }, [
+    attachments,
+    handleSubmit,
+    inputValue,
+    isMobile,
+    setAttachments,
+    setInput,
+  ]);
 
   return (
     <form

@@ -2,8 +2,9 @@ import Image from 'next/image';
 import type { Attachment } from 'ai';
 import { X } from 'lucide-react';
 import { LoaderIcon } from './icons';
+import { memo } from 'react';
 
-export const PreviewAttachment = ({
+function PreviewAttachment({
   id,
   attachment,
   onRemove,
@@ -13,7 +14,7 @@ export const PreviewAttachment = ({
   attachment: Attachment;
   onRemove?: (index: number) => void;
   isUploading?: boolean;
-}) => {
+}) {
   const { name, url, contentType } = attachment;
 
   return (
@@ -62,4 +63,6 @@ export const PreviewAttachment = ({
       <div className='text-xs text-zinc-500 max-w-16 truncate'>{name}</div>
     </div>
   );
-};
+}
+
+export default memo(PreviewAttachment);
