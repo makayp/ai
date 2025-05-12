@@ -1,11 +1,7 @@
 'use client';
 
 import { useIsMobile } from '@/hooks/use-mobile';
-import {
-  ALLOWED_ATTACHMENT_TYPES,
-  MAX_ATTACHMENT_SIZE,
-  MAX_ATTACHMENTS,
-} from '@/lib/config';
+import { MAX_ATTACHMENTS } from '@/lib/config';
 import { UseChatHelpers } from '@ai-sdk/react';
 import { Attachment } from 'ai';
 import clsx from 'clsx';
@@ -18,7 +14,6 @@ import React, {
   useCallback,
   useEffect,
   useRef,
-  useState,
 } from 'react';
 import { toast } from 'sonner';
 import { twMerge } from 'tailwind-merge';
@@ -37,6 +32,8 @@ type ChatInputProps = {
   chatId: string;
   attachments: Array<Attachment>;
   setAttachments: Dispatch<SetStateAction<Array<Attachment>>>;
+  uploadQueue: Array<string>;
+  uploadFiles: (files: File[]) => Promise<void>;
   className?: string;
 };
 
@@ -50,7 +47,9 @@ function ChatInput({
   handleSubmit,
   attachments,
   setAttachments,
+  uploadQueue,
   className,
+  uploadFiles,
 }: ChatInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
@@ -81,7 +80,6 @@ function ChatInput({
   };
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [uploadQueue, setUploadQueue] = useState<Array<string>>([]);
 
   const removeAttachment = useCallback(
     (index: number) => {
@@ -98,64 +96,17 @@ function ChatInput({
     async (event: ChangeEvent<HTMLInputElement>) => {
       const files = Array.from(event.target.files || []);
 
-      if (files.length === 0) return;
+      await uploadFiles(files);
 
-      if (files.some((file) => !ALLOWED_ATTACHMENT_TYPES.includes(file.type))) {
-        toast.error('Only JPEG, PNG, and WEBP image formats are allowed.');
-      }
-      if (files.some((file) => file.size > MAX_ATTACHMENT_SIZE)) {
-        toast.error(`One or more files are too large. Max size is 10MB.`);
-      }
-
-      const allowedFiles = files.filter(
-        (file) =>
-          ALLOWED_ATTACHMENT_TYPES.includes(file.type) &&
-          file.size <= MAX_ATTACHMENT_SIZE
-      );
-
-      setUploadQueue(allowedFiles.map((file) => file.name));
-
-      try {
-        allowedFiles.map(async (file) => {
-          const reader = new FileReader();
-          reader.onload = async () => {
-            const base64 = reader.result;
-
-            setAttachments((currentAttachments) => {
-              const updatedAttachments = [
-                ...currentAttachments,
-                {
-                  url: base64 as string,
-                  name: file.name,
-                  contentType: file.type,
-                },
-              ];
-
-              if (updatedAttachments.length > MAX_ATTACHMENTS) {
-                toast.error(
-                  `You can only upload ${MAX_ATTACHMENTS} files at a time.`
-                );
-                updatedAttachments.slice(0, MAX_ATTACHMENTS);
-              }
-              return updatedAttachments;
-            });
-          };
-          reader.readAsDataURL(file);
-        });
-      } catch (error) {
-        console.error('Error attaching files!', error);
-      } finally {
-        setUploadQueue([]);
-        fileInputRef.current!.value = '';
-      }
+      fileInputRef.current!.value = '';
     },
-    [setAttachments]
+    [uploadFiles]
   );
 
   const submitForm = useCallback(() => {
     if (!inputValue.trim()) return;
     handleSubmit(undefined, {
-      experimental_attachments: attachments,
+      experimental_attachments: fileInputRef.current?.files || [],
     });
 
     setInput('');
@@ -164,14 +115,7 @@ function ChatInput({
     if (!isMobile) {
       textareaRef.current?.focus();
     }
-  }, [
-    attachments,
-    handleSubmit,
-    inputValue,
-    isMobile,
-    setAttachments,
-    setInput,
-  ]);
+  }, [handleSubmit, inputValue, isMobile, setAttachments, setInput]);
 
   return (
     <form
@@ -207,7 +151,7 @@ function ChatInput({
             {attachments.map((attachment, index) => (
               <PreviewAttachment
                 id={index}
-                key={attachment.url + index}
+                key={index + (attachment.name || '')}
                 attachment={attachment}
                 onRemove={removeAttachment}
               />

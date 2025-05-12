@@ -1,15 +1,17 @@
 'use client';
 
+import { MAX_ATTACHMENTS } from '@/lib/config';
+import { generateRandomUUID, processFiles } from '@/lib/utils';
 import { Message, useChat } from '@ai-sdk/react';
-import ChatInput from './chat-input';
-import Messages from './messages';
-import { generateRandomUUID } from '@/lib/utils';
-import { toast } from 'sonner';
-import Overview from './overview';
-import { useEffect, useState } from 'react';
-import { formatDistanceToNow } from 'date-fns';
 import { Attachment } from 'ai';
+import { formatDistanceToNow } from 'date-fns';
+import { Upload } from 'lucide-react';
+import { DragEvent, useCallback, useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import ChatInput from './chat-input';
 import Header from './header';
+import Messages from './messages';
+import Overview from './overview';
 
 type ChatProps = {
   id: string;
@@ -37,6 +39,8 @@ export default function Chat({ id, initialMessages }: ChatProps) {
     generateId: generateRandomUUID,
   });
 
+  const [uploadQueue, setUploadQueue] = useState<string[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
   const [attachments, setAttachments] = useState<Array<Attachment>>([]);
 
   useEffect(() => {
@@ -70,8 +74,59 @@ export default function Chat({ id, initialMessages }: ChatProps) {
     }
   }, [error]);
 
+  const uploadFiles = useCallback(
+    async (files: File[]) => {
+      if (files.length === 0) return;
+
+      setUploadQueue(files.map((file) => file.name));
+
+      try {
+        const filesWithUrls = await processFiles(files);
+
+        setAttachments((currentAttachments) => {
+          const updatedAttachments = [...currentAttachments, ...filesWithUrls];
+          if (updatedAttachments.length > MAX_ATTACHMENTS) {
+            return updatedAttachments.slice(0, MAX_ATTACHMENTS);
+          }
+          return updatedAttachments;
+        });
+
+        if (attachments.length + filesWithUrls.length > MAX_ATTACHMENTS) {
+          toast.error(
+            `You can only attach up to ${MAX_ATTACHMENTS} files at a time.`
+          );
+        }
+      } catch (error) {
+        console.error('Error attaching files!', error);
+      } finally {
+        setUploadQueue([]);
+      }
+    },
+    [attachments.length]
+  );
+
+  const handleDrop = useCallback(
+    (event: DragEvent<HTMLDivElement>) => {
+      event.preventDefault();
+      setIsDragging(false);
+      const files = Array.from(event.dataTransfer.files);
+      uploadFiles(files);
+    },
+    [uploadFiles]
+  );
+
   return (
-    <div className='flex flex-col h-full w-full'>
+    <div
+      key={chatId}
+      onDragOver={(e) => {
+        e.preventDefault();
+        setIsDragging(true);
+      }}
+      onDragEnter={() => setIsDragging(true)}
+      onDragLeave={() => setIsDragging(false)}
+      onDrop={handleDrop}
+      className={'flex flex-col h-full w-full'}
+    >
       <Header />
 
       {messages.length === 0 && <Overview chatId={chatId} append={append} />}
@@ -97,7 +152,16 @@ export default function Chat({ id, initialMessages }: ChatProps) {
         stop={stop}
         chatId={chatId}
         handleSubmit={handleSubmit}
+        uploadQueue={uploadQueue}
+        uploadFiles={uploadFiles}
       />
+
+      {isDragging && (
+        <div className='absolute inset-0 flex flex-col text-lg items-center justify-center gap-2 bg-background/90 text-foreground rounded-md z-50 border border-dashed border-primary/70'>
+          <Upload className='size-8' />
+          Drop files here to add them to the chat
+        </div>
+      )}
     </div>
   );
 }

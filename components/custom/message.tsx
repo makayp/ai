@@ -2,12 +2,11 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { ChatRequestOptions, type Message as MessageType } from 'ai';
 import clsx from 'clsx';
 import { motion } from 'framer-motion';
-import { Bot } from 'lucide-react';
 import { memo } from 'react';
 import Markdown from './markdown';
 import MessageActions from './message-actions';
-import { Weather } from './weather';
 import { PreviewAttachment } from './preview-attachment';
+import { Weather } from './weather';
 
 type MessageProps = {
   message: MessageType;
@@ -20,7 +19,7 @@ type MessageProps = {
 
 function Message({ message, isLastMessage, isLoading, reload }: MessageProps) {
   const isMobile = useIsMobile();
-  // console.log(message);
+
   return (
     <div
       className='text-gray-900 w-full data-[role=user]:my-5 group/message mt-10'
@@ -43,12 +42,15 @@ function Message({ message, isLastMessage, isLoading, reload }: MessageProps) {
                       data-testid={`message-attachments`}
                       className='flex flex-row justify-end gap-2'
                     >
-                      {message.experimental_attachments.map((attachment) => (
-                        <PreviewAttachment
-                          key={attachment.url}
-                          attachment={attachment}
-                        />
-                      ))}
+                      {message.experimental_attachments.map(
+                        (attachment, index) => (
+                          <PreviewAttachment
+                            id={index}
+                            key={attachment.url}
+                            attachment={attachment}
+                          />
+                        )
+                      )}
                     </div>
                   )}
 
