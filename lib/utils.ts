@@ -42,7 +42,7 @@ export function preprocessLaTeX(content: string) {
   return inlineProcessedContent;
 }
 
-export function processFiles(files: File[]): Promise<Attachment[]> {
+export async function processFiles(files: File[]) {
   if (files.some((file) => !ALLOWED_ATTACHMENT_TYPES.includes(file.type))) {
     toast.error('Only JPEG, PNG, and WEBP image formats are allowed.');
   }
@@ -56,25 +56,32 @@ export function processFiles(files: File[]): Promise<Attachment[]> {
       file.size <= MAX_ATTACHMENT_SIZE
   );
 
-  return convertFilesToAttachments(allowedFiles);
+  return allowedFiles;
 }
 
-export function convertFilesToAttachments(
-  files: File[]
-): Promise<Attachment[]> {
-  return Promise.all(
-    files.map((file) => {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () =>
-          resolve({
-            url: reader.result as string,
-            name: file.name,
-            contentType: file.type,
-          });
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      }) as Promise<Attachment>;
-    })
-  );
+export async function uploadFile(file: File): Promise<Attachment | undefined> {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    const response = await fetch('/api/files/upload', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      const { url, pathname, contentType } = data;
+
+      return {
+        url,
+        name: pathname.split('/').pop() || 'Image',
+        contentType: contentType,
+      };
+    }
+    const { error } = await response.json();
+    toast.error(error);
+  } catch (_) {
+    toast.error('Failed to upload file, please try again!');
+  }
 }

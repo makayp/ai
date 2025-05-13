@@ -4,9 +4,8 @@ export const RATE_LIMITS = {
 };
 
 export const MAX_ATTACHMENTS = 3;
-export const MAX_ATTACHMENT_SIZE = 10 * 1024 * 1024; // 10MB
+export const MAX_ATTACHMENT_SIZE = 5 * 1024 * 1024; // 5MB
 export const ALLOWED_ATTACHMENT_TYPES = [
-  'image/jpg',
   'image/jpeg',
   'image/png',
   'image/webp',

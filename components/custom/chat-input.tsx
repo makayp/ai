@@ -20,6 +20,7 @@ import { twMerge } from 'tailwind-merge';
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
 import PreviewAttachment from './preview-attachment';
+import { cn } from '@/lib/utils';
 
 type ChatInputProps = {
   inputValue: string;
@@ -125,142 +126,152 @@ function ChatInput({
   ]);
 
   return (
-    <form
-      ref={formRef}
-      className={clsx(
-        'relative flex flex-col items-center gap-4 mx-auto w-[calc(100dvw-32px)] sm:w-[calc(100dvw-70px)] max-w-3xl rounded-3xl overflow-hidden shadow border bg-background/90 backdrop-blur'
+    <div
+      className={cn(
+        'flex flex-col gap-2 w-[calc(100dvw-32px)] sm:w-[calc(100dvw-70px)] max-w-3xl mx-auto',
+        {
+          'bg-background': attachments.length > 0 || uploadQueue.length > 0,
+        }
       )}
     >
-      <div
-        className='relative px-2.5 md:pl-4 w-full py-2'
-        onClick={(e) => {
-          if (['BUTTON', 'INPUT'].includes((e.target as HTMLElement).tagName)) {
-            return;
-          }
-          textareaRef.current?.focus();
-        }}
-      >
-        <input
-          type='file'
-          className='fixed -top-4 -left-4 size-0.5 opacity-0 pointer-events-none'
-          ref={fileInputRef}
-          multiple
-          accept='image/jpg,image/jpeg,image/png,image/webp'
-          onChange={handleFileChange}
-          tabIndex={-1}
-        />
+      {(attachments.length > 0 || uploadQueue.length > 0) && (
+        <div
+          data-testid='attachments-preview'
+          className='flex flex-row gap-2 overflow-x-scroll items-end'
+        >
+          {attachments.map((attachment, index) => (
+            <PreviewAttachment
+              id={index}
+              key={index + (attachment.name || '')}
+              attachment={attachment}
+              onRemove={removeAttachment}
+            />
+          ))}
 
-        {(attachments.length > 0 || uploadQueue.length > 0) && (
-          <div
-            data-testid='attachments-preview'
-            className='flex flex-row gap-2 overflow-x-scroll items-end'
-          >
-            {attachments.map((attachment, index) => (
-              <PreviewAttachment
-                id={index}
-                key={index + (attachment.name || '')}
-                attachment={attachment}
-                onRemove={removeAttachment}
-              />
-            ))}
-
-            {uploadQueue.map((filename, index) => (
-              <PreviewAttachment
-                id={index}
-                key={filename + index}
-                attachment={{
-                  url: '',
-                  name: filename,
-                  contentType: '',
-                }}
-                isUploading={true}
-              />
-            ))}
-          </div>
-        )}
-
-        <Textarea
-          ref={textareaRef}
-          placeholder='Send a message...'
-          value={inputValue}
-          onChange={handleInputChange}
-          className={twMerge(
-            'min-h-0 max-h-[calc(30dvh)] overflow-auto resize-none text-base border-none bg-transparent p-0 pr-4 m-1 mb-4 focus-visible:ring-0 focus-visible:ring-offset-0',
-            className
-          )}
-          rows={1}
-          autoFocus
-          onKeyDown={(event) => {
-            if (event.key === 'Enter' && !event.shiftKey) {
-              if (isMobile) return;
-              event.preventDefault();
-
-              if (isLoading) {
-                toast.error(
-                  'Please wait for the model to finish its response!'
-                );
-              } else {
-                submitForm();
-              }
-            }
-          }}
-        />
-
-        <div className='flex flex-row justify-between items-end md:items-center'>
-          <div>
-            <Button
-              size='icon'
-              variant='outline'
-              className='shadow-none rounded-full mr-2'
-              disabled={
-                status !== 'ready' || attachments.length >= MAX_ATTACHMENTS
-              }
-              onClick={(event) => {
-                event.preventDefault();
-                fileInputRef.current?.click();
+          {uploadQueue.map((filename, index) => (
+            <PreviewAttachment
+              id={index}
+              key={filename + index}
+              attachment={{
+                url: '',
+                name: filename,
+                contentType: '',
               }}
-            >
-              <Plus size={14} />
-            </Button>
-            {/* <Toggle
+              isUploading={true}
+            />
+          ))}
+        </div>
+      )}
+      <form
+        ref={formRef}
+        className={clsx(
+          'relative flex flex-col items-center gap-4 rounded-3xl overflow-hidden shadow border bg-background/90 backdrop-blur'
+        )}
+      >
+        <div
+          className='relative px-2.5 md:pl-4 w-full py-2'
+          onClick={(e) => {
+            if (
+              ['BUTTON', 'INPUT'].includes((e.target as HTMLElement).tagName)
+            ) {
+              return;
+            }
+            textareaRef.current?.focus();
+          }}
+        >
+          <input
+            type='file'
+            className='fixed -top-4 -left-4 size-0.5 opacity-0 pointer-events-none'
+            ref={fileInputRef}
+            multiple
+            accept='image/jpeg,image/png,image/webp'
+            onChange={handleFileChange}
+            tabIndex={-1}
+          />
+
+          <Textarea
+            ref={textareaRef}
+            placeholder='Send a message...'
+            value={inputValue}
+            onChange={handleInputChange}
+            className={twMerge(
+              'min-h-0 max-h-[calc(30dvh)] overflow-auto resize-none text-base border-none bg-transparent p-0 pr-4 m-1 mb-4 focus-visible:ring-0 focus-visible:ring-offset-0',
+              className
+            )}
+            rows={1}
+            autoFocus
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' && !event.shiftKey) {
+                if (isMobile) return;
+                event.preventDefault();
+
+                if (isLoading) {
+                  toast.error(
+                    'Please wait for the model to finish its response!'
+                  );
+                } else {
+                  submitForm();
+                }
+              }
+            }}
+          />
+
+          <div className='flex flex-row justify-between items-end md:items-center'>
+            <div>
+              <Button
+                size='icon'
+                variant='outline'
+                className='shadow-none rounded-full mr-2'
+                disabled={
+                  status !== 'ready' || attachments.length >= MAX_ATTACHMENTS
+                }
+                onClick={(event) => {
+                  event.preventDefault();
+                  fileInputRef.current?.click();
+                }}
+              >
+                <Plus size={14} />
+              </Button>
+              {/* <Toggle
               variant='outline'
               className='mr-2 rounded-full h-fit px-3 py-1 shadow-none text-foreground/80'
             >
               <Lightbulb size={14} />
               Reason
             </Toggle> */}
-          </div>
+            </div>
 
-          <div>
-            {isLoading ? (
-              <Button
-                type='button'
-                size='icon'
-                className='rounded-full text-white'
-                onClick={(event) => {
-                  event.preventDefault();
-                  stop();
-                }}
-              >
-                <StopCircle size={14} />
-              </Button>
-            ) : (
-              <Button
-                size='icon'
-                className='rounded-full text-white disabled:pointer-events-auto'
-                onClick={(event) => {
-                  event.preventDefault();
-                  submitForm();
-                }}
-                disabled={inputValue.trim().length === 0}
-              >
-                <ArrowUpIcon size={14} />
-              </Button>
-            )}
+            <div>
+              {isLoading ? (
+                <Button
+                  type='button'
+                  size='icon'
+                  className='rounded-full text-white'
+                  onClick={(event) => {
+                    event.preventDefault();
+                    stop();
+                  }}
+                >
+                  <StopCircle size={14} />
+                </Button>
+              ) : (
+                <Button
+                  size='icon'
+                  className='rounded-full text-white disabled:pointer-events-auto'
+                  onClick={(event) => {
+                    event.preventDefault();
+                    submitForm();
+                  }}
+                  disabled={inputValue.trim().length === 0}
+                >
+                  <ArrowUpIcon size={14} />
+                </Button>
+              )}
+            </div>
           </div>
         </div>
-      </div>
-    </form>
+      </form>
+    </div>
   );
 }
 

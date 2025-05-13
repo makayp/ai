@@ -1,7 +1,7 @@
 'use client';
 
 import { MAX_ATTACHMENTS } from '@/lib/config';
-import { generateRandomUUID, processFiles } from '@/lib/utils';
+import { generateRandomUUID, processFiles, uploadFile } from '@/lib/utils';
 import { Message, useChat } from '@ai-sdk/react';
 import { Attachment } from 'ai';
 import { formatDistanceToNow } from 'date-fns';
@@ -81,21 +81,30 @@ export default function Chat({ id, initialMessages }: ChatProps) {
       setUploadQueue(files.map((file) => file.name));
 
       try {
-        const filesWithUrls = await processFiles(files);
+        const allowedFiles = await processFiles(files);
 
-        setAttachments((currentAttachments) => {
-          const updatedAttachments = [...currentAttachments, ...filesWithUrls];
-          if (updatedAttachments.length > MAX_ATTACHMENTS) {
-            return updatedAttachments.slice(0, MAX_ATTACHMENTS);
-          }
-          return updatedAttachments;
-        });
-
-        if (attachments.length + filesWithUrls.length > MAX_ATTACHMENTS) {
+        if (attachments.length + allowedFiles.length > MAX_ATTACHMENTS) {
           toast.error(
             `You can only attach up to ${MAX_ATTACHMENTS} files at a time.`
           );
         }
+
+        const uploadPromises = allowedFiles
+          .slice(0, MAX_ATTACHMENTS - attachments.length)
+          .map((file) => uploadFile(file));
+        const uploadedAttachments = await Promise.all(uploadPromises);
+        const successfullyUploadedAttachments = uploadedAttachments.filter(
+          (attachment) => attachment !== undefined
+        );
+
+        setAttachments((currentAttachments) => {
+          const updatedAttachments = [
+            ...currentAttachments,
+            ...successfullyUploadedAttachments,
+          ];
+
+          return updatedAttachments;
+        });
       } catch (error) {
         console.error('Error attaching files!', error);
       } finally {
@@ -127,7 +136,7 @@ export default function Chat({ id, initialMessages }: ChatProps) {
       onDrop={handleDrop}
       className={'flex flex-col h-full w-full'}
     >
-      <Header />
+      <Header messages={messages} />
 
       {messages.length === 0 && <Overview chatId={chatId} append={append} />}
 

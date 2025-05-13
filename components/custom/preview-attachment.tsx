@@ -1,8 +1,7 @@
-import Image from 'next/image';
 import type { Attachment } from 'ai';
 import { X } from 'lucide-react';
-import { LoaderIcon } from './icons';
 import { memo } from 'react';
+import { LoaderIcon } from './icons';
 
 function PreviewAttachment({
   id,
@@ -25,10 +24,10 @@ function PreviewAttachment({
       <div className='w-20 h-16 aspect-video bg-muted rounded-md relative flex flex-col items-center justify-center'>
         {contentType ? (
           contentType.startsWith('image') ? (
-            <Image
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
               key={id}
               src={url}
-              fill
               alt={name ?? 'An image attachment'}
               className='rounded-md size-full object-cover'
             />
