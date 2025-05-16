@@ -8,7 +8,7 @@ export default async function Home() {
 
   return (
     <div className='relative h-dvh pb-4'>
-      <Chat id={id} initialMessages={[]} />
+      <Chat key={id} id={id} initialMessages={[]} />
     </div>
   );
 }

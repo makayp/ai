@@ -1,27 +1,18 @@
 import { useScrollToBottom } from '@/hooks/use-scroll-to-bottom';
-import {
-  ChatRequestOptions,
-  CreateMessage,
-  type Message as MessageType,
-} from 'ai';
+import { UIMessage } from 'ai';
 import Message, { ThinkingMessage } from './message';
 import { memo } from 'react';
 import { isLastMessage } from '@/lib/utils';
-import { useChat } from '@ai-sdk/react';
+import { useChat, UseChatHelpers } from '@ai-sdk/react';
 import ChatError from './error';
 
 type MessagesProps = {
   chatId: string;
-  append: (
-    message: MessageType | CreateMessage,
-    chatRequestOptions?: ChatRequestOptions
-  ) => Promise<string | null | undefined>;
-  messages: MessageType[];
+  append: UseChatHelpers['append'];
+  messages: Array<UIMessage>;
   isLoading: boolean;
   className?: string;
-  reload: (
-    chatRequestOptions?: ChatRequestOptions
-  ) => Promise<string | null | undefined>;
+  reload: UseChatHelpers['reload'];
 };
 
 function Messages({ messages, isLoading, reload, chatId }: MessagesProps) {

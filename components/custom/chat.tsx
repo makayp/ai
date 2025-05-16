@@ -27,7 +27,6 @@ export default function Chat({ id, initialMessages }: ChatProps) {
     setInput,
     append,
     status,
-    isLoading,
     stop,
     reload,
     error,
@@ -39,6 +38,7 @@ export default function Chat({ id, initialMessages }: ChatProps) {
     generateId: generateRandomUUID,
   });
 
+  const isLoading = status === 'submitted' || status === 'streaming';
   const [uploadQueue, setUploadQueue] = useState<string[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [attachments, setAttachments] = useState<Array<Attachment>>([]);
@@ -126,7 +126,6 @@ export default function Chat({ id, initialMessages }: ChatProps) {
 
   return (
     <div
-      key={chatId}
       onDragOver={(e) => {
         e.preventDefault();
         setIsDragging(true);

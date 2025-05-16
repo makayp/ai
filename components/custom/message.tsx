@@ -1,5 +1,5 @@
 import { useIsMobile } from '@/hooks/use-mobile';
-import { ChatRequestOptions, type Message as MessageType } from 'ai';
+import { UIMessage } from 'ai';
 import clsx from 'clsx';
 import { motion } from 'framer-motion';
 import { memo } from 'react';
@@ -7,14 +7,13 @@ import Markdown from './markdown';
 import MessageActions from './message-actions';
 import PreviewAttachment from './preview-attachment';
 import { Weather } from './weather';
+import { UseChatHelpers } from '@ai-sdk/react';
 
 type MessageProps = {
-  message: MessageType;
+  message: UIMessage;
   isLastMessage: boolean;
   isLoading: boolean;
-  reload: (
-    chatRequestOptions?: ChatRequestOptions
-  ) => Promise<string | null | undefined>;
+  reload: UseChatHelpers['reload'];
 };
 
 function Message({ message, isLastMessage, isLoading, reload }: MessageProps) {
@@ -26,7 +25,6 @@ function Message({ message, isLastMessage, isLoading, reload }: MessageProps) {
       data-role={message.role}
     >
       {message.role === 'user' &&
-        message.parts &&
         message.parts.map(
           (part) =>
             part.type === 'text' && (
@@ -63,7 +61,7 @@ function Message({ message, isLastMessage, isLoading, reload }: MessageProps) {
             )
         )}
 
-      {message.parts && message.role === 'assistant' && (
+      {message.role === 'assistant' && (
         <motion.div
           initial={{ y: 5, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}

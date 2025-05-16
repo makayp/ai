@@ -43,7 +43,6 @@ function ChatInput({
   inputValue,
   setInput,
   isLoading,
-  status,
   stop,
   handleSubmit,
   attachments,
@@ -222,9 +221,7 @@ function ChatInput({
                 size='icon'
                 variant='outline'
                 className='shadow-none rounded-full mr-2'
-                disabled={
-                  status !== 'ready' || attachments.length >= MAX_ATTACHMENTS
-                }
+                disabled={isLoading || attachments.length >= MAX_ATTACHMENTS}
                 onClick={(event) => {
                   event.preventDefault();
                   fileInputRef.current?.click();
