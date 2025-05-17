@@ -45,6 +45,7 @@ export default function Copy({
   return (
     <Tooltip content={isCopied ? 'Copied' : description || 'Copy'}>
       <Button
+        size='icon'
         variant={variant}
         onClick={copyToClipboard}
         className={twMerge('text-gray-700', className)}

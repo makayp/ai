@@ -18,11 +18,12 @@ export default function ReloadButton({
   return (
     <Tooltip content='Regenerate'>
       <Button
+        size='icon'
         variant='outline'
         onClick={() => onClick()}
         className={twMerge('text-gray-700', className)}
       >
-        <RefreshCcw className='size-[23px] stroke-[2.2px]' />
+        <RefreshCcw className='stroke-[2.2px]' />
       </Button>
     </Tooltip>
   );

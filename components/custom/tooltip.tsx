@@ -1,11 +1,11 @@
 import {
-  Tooltip,
+  Tooltip as TooltipPrimitive,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 
-export default function CustomTooltip({
+export default function Tooltip({
   content,
   children,
 }: {
@@ -14,12 +14,12 @@ export default function CustomTooltip({
 }) {
   return (
     <TooltipProvider>
-      <Tooltip delayDuration={200}>
+      <TooltipPrimitive delayDuration={50}>
         <TooltipTrigger asChild>{children}</TooltipTrigger>
         <TooltipContent>
           <p>{content}</p>
         </TooltipContent>
-      </Tooltip>
+      </TooltipPrimitive>
     </TooltipProvider>
   );
 }

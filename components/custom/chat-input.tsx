@@ -5,7 +5,7 @@ import { MAX_ATTACHMENTS } from '@/lib/config';
 import { UseChatHelpers } from '@ai-sdk/react';
 import { Attachment } from 'ai';
 import clsx from 'clsx';
-import { ArrowUpIcon, Plus, StopCircle } from 'lucide-react';
+import { ArrowUpIcon, Lightbulb, Plus, StopCircle } from 'lucide-react';
 import React, {
   ChangeEvent,
   Dispatch,
@@ -21,6 +21,8 @@ import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
 import PreviewAttachment from './preview-attachment';
 import { cn } from '@/lib/utils';
+import { Tooltip } from './tooltip';
+import { Toggle } from '../ui/toggle';
 
 type ChatInputProps = {
   inputValue: string;
@@ -217,52 +219,70 @@ function ChatInput({
 
           <div className='flex flex-row justify-between items-end md:items-center'>
             <div>
-              <Button
-                size='icon'
-                variant='outline'
-                className='shadow-none rounded-full mr-2'
-                disabled={isLoading || attachments.length >= MAX_ATTACHMENTS}
-                onClick={(event) => {
-                  event.preventDefault();
-                  fileInputRef.current?.click();
-                }}
+              <Tooltip
+                content={
+                  isLoading
+                    ? 'Generating...'
+                    : attachments.length >= MAX_ATTACHMENTS
+                    ? 'Limit reached'
+                    : 'Add files'
+                }
               >
-                <Plus size={14} />
-              </Button>
-              {/* <Toggle
-              variant='outline'
-              className='mr-2 rounded-full h-fit px-3 py-1 shadow-none text-foreground/80'
-            >
-              <Lightbulb size={14} />
-              Reason
-            </Toggle> */}
+                <Button
+                  size='icon'
+                  variant='outline'
+                  className='shadow-none rounded-full mr-2 disabled:pointer-events-auto'
+                  disabled={isLoading || attachments.length >= MAX_ATTACHMENTS}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    fileInputRef.current?.click();
+                  }}
+                >
+                  <Plus size={14} />
+                </Button>
+              </Tooltip>
+
+              <Tooltip content='Coming soon!'>
+                <Toggle
+                  variant='outline'
+                  disabled
+                  className='mr-2 rounded-full pl-3 pr-4 py-1 shadow-none text-foreground/80 disabled:pointer-events-auto gap-1'
+                >
+                  <Lightbulb size={14} />
+                  Think
+                </Toggle>
+              </Tooltip>
             </div>
 
             <div>
               {isLoading ? (
-                <Button
-                  type='button'
-                  size='icon'
-                  className='rounded-full text-white'
-                  onClick={(event) => {
-                    event.preventDefault();
-                    stop();
-                  }}
-                >
-                  <StopCircle size={14} />
-                </Button>
+                <Tooltip content='Stop generating'>
+                  <Button
+                    type='button'
+                    size='icon'
+                    className='rounded-full text-white'
+                    onClick={(event) => {
+                      event.preventDefault();
+                      stop();
+                    }}
+                  >
+                    <StopCircle size={14} />
+                  </Button>
+                </Tooltip>
               ) : (
-                <Button
-                  size='icon'
-                  className='rounded-full text-white disabled:pointer-events-auto'
-                  onClick={(event) => {
-                    event.preventDefault();
-                    submitForm();
-                  }}
-                  disabled={inputValue.trim().length === 0}
-                >
-                  <ArrowUpIcon size={14} />
-                </Button>
+                <Tooltip content='Send message'>
+                  <Button
+                    size='icon'
+                    className='rounded-full text-white'
+                    onClick={(event) => {
+                      event.preventDefault();
+                      submitForm();
+                    }}
+                    disabled={inputValue.trim().length === 0}
+                  >
+                    <ArrowUpIcon size={14} />
+                  </Button>
+                </Tooltip>
               )}
             </div>
           </div>
