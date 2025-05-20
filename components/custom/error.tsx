@@ -1,12 +1,10 @@
-import { useChat } from '@ai-sdk/react';
+import { UseChatHelpers } from '@ai-sdk/react';
 
 type ErrorProps = {
-  chatId: string;
+  reload: UseChatHelpers['reload'];
 };
 
-export default function ChatError({ chatId }: ErrorProps) {
-  const { reload } = useChat({ id: chatId });
-
+export default function ChatError({ reload }: ErrorProps) {
   return (
     <div className='text-center text-red-500'>
       <p className='text-red-500'>Something went wrong.</p>

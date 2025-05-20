@@ -6,119 +6,68 @@ import { memo } from 'react';
 import Markdown from './markdown';
 import MessageActions from './message-actions';
 import PreviewAttachment from './preview-attachment';
-import { Weather } from './weather';
 import { UseChatHelpers } from '@ai-sdk/react';
+import { cn } from '@/lib/utils';
 
 type MessageProps = {
   message: UIMessage;
   isLastMessage: boolean;
   isLoading: boolean;
   reload: UseChatHelpers['reload'];
+  requiresScrollPadding?: boolean;
 };
 
-function Message({ message, isLastMessage, isLoading, reload }: MessageProps) {
+function Message({
+  message,
+  isLastMessage,
+  isLoading,
+  reload,
+  requiresScrollPadding,
+}: MessageProps) {
   const isMobile = useIsMobile();
 
   return (
-    <div
-      className='text-gray-900 w-full data-[role=user]:my-5 group/message mt-10'
+    <motion.div
+      initial={{ y: 5, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      className='relative text-gray-900 w-full data-[role=user]:my-5 group/message mt-10'
       data-role={message.role}
     >
-      {message.role === 'user' &&
-        message.parts.map(
-          (part) =>
-            part.type === 'text' && (
-              <motion.div
-                key={message.id}
-                initial={{ y: 5, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                className='overflow-hidden ml-auto max-w-[80%] w-fit'
-              >
-                {message.experimental_attachments &&
-                  message.experimental_attachments.length > 0 && (
-                    <div
-                      data-testid={`message-attachments`}
-                      className='flex flex-row justify-end gap-2'
-                    >
-                      {message.experimental_attachments.map(
-                        (attachment, index) => (
-                          <PreviewAttachment
-                            id={index}
-                            key={attachment.url}
-                            attachment={attachment}
-                          />
-                        )
-                      )}
-                    </div>
-                  )}
+      {message.role === 'user' && (
+        <div
+          key={message.id}
+          className='overflow-hidden ml-auto max-w-[80%] w-fit'
+        >
+          {message.experimental_attachments &&
+            message.experimental_attachments.length > 0 && (
+              <div className='flex flex-row justify-end gap-2'>
+                {message.experimental_attachments.map((attachment, index) => (
+                  <PreviewAttachment
+                    id={index}
+                    key={attachment.url}
+                    attachment={attachment}
+                  />
+                ))}
+              </div>
+            )}
 
-                <article data-role={message.role}>
-                  <div className='whitespace-pre-wrap bg-secondary rounded-2xl px-4 py-3 mt-4'>
-                    {part.text}
-                  </div>
-                </article>
-              </motion.div>
-            )
-        )}
+          <article data-role={message.role}>
+            <div className='whitespace-pre-wrap bg-secondary rounded-2xl px-4 py-3 mt-4'>
+              {message.parts.map((part) => part.type === 'text' && part.text)}
+            </div>
+          </article>
+        </div>
+      )}
 
       {message.role === 'assistant' && (
-        <motion.div
-          initial={{ y: 5, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={isLoading ? { duration: 0 } : {}}
-          className={clsx('flex gap-3 md:gap-5 w-full rounded-xl')}
+        <div
+          className={cn('flex gap-3 md:gap-5 w-full rounded-xl', {
+            'min-h-[calc(100dvh-320px)]': requiresScrollPadding,
+          })}
         >
-          {/* <div>
-            <Bot className='size-6 md:size-7 md:-mt-[3px] stroke-[1.5px]' />
-          </div> */}
           <div className='flex flex-col w-full overflow-hidden'>
             <article className={'flex flex-col w-full overflow-hidden'}>
               {message.parts.map((part) => {
-                if (
-                  part.type === 'tool-invocation' &&
-                  part.toolInvocation.state === 'result'
-                ) {
-                  const { result } = part.toolInvocation;
-
-                  if (part.toolInvocation.toolName === 'getWeather') {
-                    return (
-                      <div
-                        key={part.toolInvocation.toolCallId}
-                        className='w-full mb-5'
-                      >
-                        {!result.error && (
-                          <Weather
-                            key={part.toolInvocation.toolCallId}
-                            weatherAtLocation={result}
-                          />
-                        )}
-                      </div>
-                    );
-                  }
-                }
-
-                if (part.type === 'source') {
-                  console.log(part);
-                  // const { toolName } = part.toolInvocation;
-
-                  // if (part.toolInvocation.toolName === 'getWeather') {
-                  // return (
-                  //   <div
-                  //     key={part.toolInvocation.toolCallId}
-                  //     className='w-full mb-5'
-                  //   >
-                  //     {/* {!result.error && (
-                  //         <Weather
-                  //           key={part.toolInvocation.toolCallId}
-                  //           weatherAtLocation={result}
-                  //         />
-                  //       )} */}
-                  //     {toolName}
-                  //   </div>
-                  // );
-                  // }
-                }
-
                 if (part.type === 'text') {
                   return <Markdown key={message.id}>{part.text}</Markdown>;
                 }
@@ -140,9 +89,9 @@ function Message({ message, isLastMessage, isLoading, reload }: MessageProps) {
               )}
             </div>
           </div>
-        </motion.div>
+        </div>
       )}
-    </div>
+    </motion.div>
   );
 }
 
@@ -153,25 +102,15 @@ export const ThinkingMessage = () => {
 
   return (
     <div
-      className='w-full mx-auto max-w-3xl group/message mt-10'
+      className='w-full mx-auto max-w-3xl mt-10 min-h-[calc(100dvh-320px)]'
       data-role={role}
     >
       <div className='flex gap-3 md:gap-5'>
-        {/* <div>
-          <Bot className='size-6 md:size-7 md:-mt-[3px] stroke-[1.5px]' />
-        </div> */}
-
         <div className='flex flex-col gap-2 w-full pt-px'>
           <motion.div
-            initial={{
-              y: 5,
-              opacity: 0,
-            }}
-            animate={{
-              y: 0,
-              opacity: 1,
-            }}
-            transition={{ delay: 4 }}
+            initial={{ y: 5, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 2 }}
             className='text-muted-foreground'
           >
             <p className='animate-pulse'>Thinking</p>

@@ -17,10 +17,7 @@ function PreviewAttachment({
   const { name, url, contentType } = attachment;
 
   return (
-    <div
-      data-testid='input-attachment-preview'
-      className='flex flex-col gap-2 group'
-    >
+    <div className='flex flex-col gap-2 group'>
       <div className='w-20 h-16 aspect-video bg-muted rounded-md relative flex flex-col items-center justify-center'>
         {contentType ? (
           contentType.startsWith('image') ? (
@@ -39,10 +36,7 @@ function PreviewAttachment({
         )}
 
         {isUploading && (
-          <div
-            data-testid='input-attachment-loader'
-            className='animate-spin absolute text-zinc-500'
-          >
+          <div className='animate-spin absolute text-zinc-500'>
             <LoaderIcon />
           </div>
         )}

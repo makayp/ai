@@ -1,5 +1,3 @@
-import Header from '@/components/custom/header';
-
 export default function ChatLayout({
   children,
 }: Readonly<{

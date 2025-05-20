@@ -1,59 +1,40 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
+import useSWR from 'swr';
 
-export function useScrollToBottom<T extends HTMLElement>({
-  scrollOnLoad,
-}: {
-  scrollOnLoad?: boolean;
-} = {}): [React.RefObject<T | null>, React.RefObject<T | null>] {
-  const containerRef = useRef<T>(null);
-  const endRef = useRef<T>(null);
+type ScrollFlag = ScrollBehavior | false;
 
-  const [isAtBottom, setIsAtBottom] = useState(false);
+export function useScrollToBottom() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const endRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const container = containerRef.current;
-    const end = endRef.current;
-    if (container && end && scrollOnLoad) {
-      end.scrollIntoView();
-    }
-  }, [scrollOnLoad]);
+  const { data: isAtBottom = false, mutate: setIsAtBottom } = useSWR(
+    'messages:is-at-bottom',
+    null,
+    { fallbackData: false }
+  );
+
+  const { data: scrollBehavior = false, mutate: setScrollBehavior } =
+    useSWR<ScrollFlag>('messages:should-scroll', null, { fallbackData: false });
 
   useEffect(() => {
-    const container = containerRef.current;
-    const end = endRef.current;
-    if (container && end) {
-      const handleScroll = () => {
-        if (
-          container.scrollTop >=
-          container.scrollHeight - container.clientHeight - 5
-        ) {
-          setIsAtBottom(true);
-        } else {
-          setIsAtBottom(false);
-        }
-      };
-
-      container.addEventListener('scroll', handleScroll);
-
-      const observer = new MutationObserver(() => {
-        if (isAtBottom) {
-          container.scrollTop = container.scrollHeight;
-        }
-      });
-
-      observer.observe(container, {
-        childList: true,
-        subtree: true,
-        attributes: true,
-        characterData: true,
-      });
-
-      return () => {
-        container.removeEventListener('scroll', handleScroll);
-        observer.disconnect();
-      };
+    if (scrollBehavior) {
+      endRef.current?.scrollIntoView({ behavior: scrollBehavior });
+      setScrollBehavior(false);
     }
-  }, [isAtBottom]);
+  }, [setScrollBehavior, scrollBehavior]);
 
-  return [containerRef, endRef];
+  const scrollToBottom = useCallback(
+    (scrollBehavior: ScrollBehavior = 'smooth') => {
+      setScrollBehavior(scrollBehavior);
+    },
+    [setScrollBehavior]
+  );
+
+  return {
+    containerRef,
+    endRef,
+    isAtBottom,
+    scrollToBottom,
+    setIsAtBottom,
+  };
 }

@@ -9,9 +9,8 @@ import { Upload } from 'lucide-react';
 import { DragEvent, useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import ChatInput from './chat-input';
-import Header from './header';
+import ChatHeader from './chat-header';
 import Messages from './messages';
-import Overview from './overview';
 
 type ChatProps = {
   id: string;
@@ -38,14 +37,9 @@ export default function Chat({ id, initialMessages }: ChatProps) {
     generateId: generateRandomUUID,
   });
 
-  const isLoading = status === 'submitted' || status === 'streaming';
   const [uploadQueue, setUploadQueue] = useState<string[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [attachments, setAttachments] = useState<Array<Attachment>>([]);
-
-  useEffect(() => {
-    stop();
-  }, [chatId, stop]);
 
   useEffect(() => {
     if (error) {
@@ -133,32 +127,27 @@ export default function Chat({ id, initialMessages }: ChatProps) {
       onDragEnter={() => setIsDragging(true)}
       onDragLeave={() => setIsDragging(false)}
       onDrop={handleDrop}
-      className={'flex flex-col h-full w-full'}
+      className={'flex flex-col h-full w-full pb-4'}
     >
-      <Header messages={messages} />
+      <ChatHeader messages={messages} />
 
-      {messages.length === 0 && <Overview chatId={chatId} append={append} />}
-
-      {messages.length > 0 && (
-        <Messages
-          chatId={chatId}
-          append={append}
-          messages={messages}
-          isLoading={isLoading}
-          reload={reload}
-        />
-      )}
+      <Messages
+        chatId={chatId}
+        append={append}
+        messages={messages}
+        status={status}
+        error={error}
+        reload={reload}
+      />
 
       <ChatInput
         append={append}
         inputValue={input}
         setInput={setInput}
         status={status}
-        isLoading={isLoading}
         attachments={attachments}
         setAttachments={setAttachments}
         stop={stop}
-        chatId={chatId}
         handleSubmit={handleSubmit}
         uploadQueue={uploadQueue}
         uploadFiles={uploadFiles}

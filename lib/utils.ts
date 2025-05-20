@@ -1,4 +1,4 @@
-import { Attachment, Message } from 'ai';
+import { Attachment } from 'ai';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { v4 as uuidv4 } from 'uuid';
@@ -11,16 +11,6 @@ export function cn(...inputs: ClassValue[]) {
 
 export function generateRandomUUID(): string {
   return uuidv4();
-}
-
-export function isLastMessage({
-  messages,
-  message,
-}: {
-  messages: Message[];
-  message: Message;
-}): boolean {
-  return messages[messages.length - 1]?.id === message.id;
 }
 
 export function preprocessLaTeX(content: string) {
@@ -81,7 +71,8 @@ export async function uploadFile(file: File): Promise<Attachment | undefined> {
     }
     const { error } = await response.json();
     toast.error(error);
-  } catch (_) {
+  } catch (error) {
+    console.error('Error uploading file:', error);
     toast.error('Failed to upload file, please try again!');
   }
 }

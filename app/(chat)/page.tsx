@@ -7,7 +7,7 @@ export default async function Home() {
   const id = generateRandomUUID();
 
   return (
-    <div className='relative h-dvh pb-4'>
+    <div className='relative min-h-dvh overflow-hidden'>
       <Chat key={id} id={id} initialMessages={[]} />
     </div>
   );

@@ -13,7 +13,7 @@ type OverviewProps = {
 
 function Overview({ append }: OverviewProps) {
   return (
-    <div className='overflow-auto w-full flex-1 pt-20 pb-16 transition-all duration-300 ease-in-out'>
+    <div className='w-full flex-1 pt-20 pb-16 transition-all duration-300 ease-in-out'>
       <div className='flex items-center justify-center w-[calc(100%-32px)] max-w-2xl mx-auto rounded-xl text-center h-full min-h-fit'>
         <div className='flex flex-col gap-5 w-full'>
           <div>
