@@ -105,7 +105,12 @@ function ChatInput({
           event.key === 'Backspace' ||
           event.key === 'Delete' ||
           event.key === 'Enter';
-        if (isAlphaNumeric) {
+        if (
+          isAlphaNumeric &&
+          !event.ctrlKey &&
+          !event.metaKey &&
+          !event.altKey
+        ) {
           textareaRef.current.focus();
 
           if (event.key.length !== 1) {
@@ -236,7 +241,7 @@ function ChatInput({
         )}
         <form
           ref={formRef}
-          className='relative flex flex-col items-center gap-4 rounded-3xl overflow-hidden shadow border bg-background/90 backdrop-blur'
+          className='relative flex flex-col items-center gap-4 rounded-3xl shadow border bg-background/90 backdrop-blur'
         >
           <div
             className='relative px-2.5 md:pl-4 w-full py-2'

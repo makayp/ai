@@ -28,6 +28,7 @@ function Messages({
     useMessagesContainer({
       chatId,
       status,
+      shouldScrollToBottom: messages.length > 0,
     });
 
   return (
