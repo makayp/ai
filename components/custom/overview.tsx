@@ -1,19 +1,16 @@
-import { ChatRequestOptions, CreateMessage, type Message } from 'ai';
+import { UseChatHelpers } from '@ai-sdk/react';
 import { motion } from 'framer-motion';
 import { memo } from 'react';
 import { ChatSuggestions } from './chat-suggestions';
 
 type OverviewProps = {
   chatId: string;
-  append: (
-    message: Message | CreateMessage,
-    chatRequestOptions?: ChatRequestOptions
-  ) => Promise<string | null | undefined>;
+  append: UseChatHelpers['append'];
 };
 
 function Overview({ append }: OverviewProps) {
   return (
-    <div className='w-full flex-1 pt-20 pb-16 transition-all duration-300 ease-in-out'>
+    <div className='w-full flex-1 pt-10 transition-all duration-300 ease-in-out'>
       <div className='flex items-center justify-center w-[calc(100%-32px)] max-w-2xl mx-auto rounded-xl text-center h-full min-h-fit'>
         <div className='flex flex-col gap-5 w-full'>
           <div>

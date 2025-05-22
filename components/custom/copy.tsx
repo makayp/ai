@@ -1,11 +1,10 @@
 'use client';
 
 import { Check, CopyIcon } from 'lucide-react';
+import { useState } from 'react';
+import { twMerge } from 'tailwind-merge';
 import { Button } from '../ui/button';
 import Tooltip from './tooltip';
-import { useEffect, useState } from 'react';
-import { twMerge } from 'tailwind-merge';
-import { toast } from 'sonner';
 
 type CopyProps = {
   text: string;
@@ -21,12 +20,6 @@ export default function Copy({
   className,
 }: CopyProps) {
   const [isCopied, setIsCopied] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (isCopied) {
-      toast.success('Copied to clipboard');
-    }
-  }, [isCopied]);
 
   async function copyToClipboard() {
     if (!navigator?.clipboard || isCopied) return;
